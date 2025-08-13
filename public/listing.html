@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dental Tool Listing</title>
+<style>
+body { font-family: Arial, sans-serif; max-width:800px; margin:20px auto; padding:0 16px; }
+h1 { color:#0072ce; }
+.images { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px; }
+.images img { max-width:200px; max-height:200px; border-radius:8px; object-fit:contain; cursor:pointer; }
+.detail { margin-bottom:20px; }
+button { padding:10px 14px; background:#0072ce; color:#fff; border:0; border-radius:6px; cursor:pointer; margin-top:10px; }
+.contact-number { display:none; margin-top:8px; font-weight:bold; }
+</style>
+</head>
+<body>
+<h1 id="itemName">Loading...</h1>
+<div class="images" id="imagesContainer"></div>
+<div class="detail" id="itemDescription"></div>
+<div class="detail" id="itemPrice"></div>
+
+<h3>Contact Numbers</h3>
+<div>
+  <button id="viewContactBtn">View Contact Number</button>
+  <div class="contact-number" id="contactNumber"></div>
+</div>
+<div>
+  <button id="viewWhatsappBtn">View WhatsApp Number</button>
+  <div class="contact-number" id="whatsappNumber"></div>
+</div>
+
+<script>
+const pathParts = window.location.pathname.split('/');
+const listingId = pathParts[pathParts.length - 1];
+
+async function fetchListing() {
+  try {
+    const res = await fetch('/api/listings/' + listingId);
+    if(!res.ok) { document.body.innerHTML = '<h1>Listing not found</h1>'; return; }
+    const data = await res.json();
+    document.getElementById('itemName').textContent = data.itemName;
+    document.getElementById('itemDescription').textContent = 'Description: ' + (data.itemDescription || 'No description provided.');
+    document.getElementById('itemPrice').textContent = 'Price: ' + data.price.toLocaleString('en-US', { style:'currency', currency:'EGP' });
+
+    const imagesContainer = document.getElementById('imagesContainer');
+    if(data.images.length===0){
+      imagesContainer.innerHTML='<p>No images uploaded.</p>';
+    } else {
+      data.images.forEach(img=>{
+        const imageEl = document.createElement('img');
+        imageEl.src = img;
+        imagesContainer.appendChild(imageEl);
+      });
+    }
+
+    // Store contact numbers in JS but hide
+    document.getElementById('contactNumber').textContent = data.contactNumber || 'N/A';
+    document.getElementById('whatsappNumber').textContent = data.whatsappNumber || 'N/A';
+    
+  } catch(err) {
+    console.error(err);
+    document.body.innerHTML = '<h1>Error loading listing</h1>';
+  }
+}
+
+fetchListing();
+
+// Show contact numbers when clicked
+document.getElementById('viewContactBtn').addEventListener('click', async () => {
+  const el = document.getElementById('contactNumber');
+  el.style.display = 'block';
+  await fetch('/api/contact-viewed', {
+    method:'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ listingId, contactType:'contactNumber' })
+  });
+});
+
+document.getElementById('viewWhatsappBtn').addEventListener('click', async () => {
+  const el = document.getElementById('whatsappNumber');
+  el.style.display = 'block';
+  await fetch('/api/contact-viewed', {
+    method:'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ listingId, contactType:'whatsappNumber' })
+  });
+});
+</script>
+</body>
+</html>
