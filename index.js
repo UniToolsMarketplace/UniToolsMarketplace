@@ -111,7 +111,8 @@ app.post('/preowned/sell', upload.array('images', 5), (req, res) => {
   listings.push({ id, sellerName, email, contactNumber, whatsappNumber, itemName, itemDescription, price: parseFloat(price), pricePeriod, images, isPublished: false, otpVerified: false });
   writeSellListings(listings);
 
-  const verifyUrl = `http://localhost:${port}/verify-otp/sell?id=${id}&email=${encodeURIComponent(email)}`;
+  const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
+  const verifyUrl = `${baseUrl}/verify-otp/sell?id=${id}&email=${encodeURIComponent(email)}`;
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
@@ -190,7 +191,7 @@ app.post('/preowned/lease', uploadLease.array('images', 5), (req, res) => {
   listings.push({ id, sellerName, email, contactNumber, whatsappNumber, itemName, itemDescription, price: parseFloat(price), pricePeriod, images, isPublished: false, otpVerified: false });
   writeLeaseListings(listings);
 
-  const verifyUrl = `http://localhost:${port}/verify-otp/lease?id=${id}&email=${encodeURIComponent(email)}`;
+  const verifyUrl = `${baseUrl}/verify-otp/lease?id=${id}&email=${encodeURIComponent(email)}`;
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
