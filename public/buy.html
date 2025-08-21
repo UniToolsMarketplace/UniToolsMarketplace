@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Buy Dental Tools</title>
+<style>
+body { font-family: Arial, sans-serif; max-width:900px; margin:20px auto; padding:0 16px; }
+h1 { color:#0072ce; }
+.listing { border:1px solid #0072ce; border-radius:8px; padding:12px; margin-bottom:20px; cursor:pointer; display:flex; }
+.listing img { max-width:150px; max-height:150px; margin-right:20px; border-radius:8px; object-fit:contain; }
+.listing-info { flex:1; }
+.listing-name { font-size:1.2rem; font-weight:bold; color:#0072ce; margin-bottom:8px; }
+.listing-price { margin-bottom:8px; }
+#searchInput { margin-bottom:20px; width:100%; padding:10px; font-size:1rem; box-sizing:border-box; }
+#sortSelect { margin-bottom:20px; padding:8px; font-size:1rem; }
+</style>
+</head>
+<body>
+<h1>Buy Preowned Dental Tools</h1>
+<input type="text" id="searchInput" placeholder="Search by item name..." />
+<select id="sortSelect">
+  <option value="none">Sort by price</option>
+  <option value="asc">Price: Low to High</option>
+  <option value="desc">Price: High to Low</option>
+</select>
+<div id="listingsContainer"></div>
+<script>
+let listings = [];
+
+async function fetchListings(){
+  // ✅ now pulls from SELL_LISTINGS_FILE via API route
+  const res = await fetch('/api/sell/listings');
+  listings = await res.json();
+  renderListings(listings);
+}
+
+function renderListings(data){
+  const container = document.getElementById('listingsContainer');
+  container.innerHTML = '';
+  if(data.length===0){ container.innerHTML='<p>No listings found.</p>'; return; }
+
+  data.forEach(l=>{
+    const firstImage = l.images.length>0?l.images[0]:'placeholder.png';
+    const div = document.createElement('div');
+    div.className='listing';
+    div.onclick=()=>{ window.location.href=`/listing/${l.id}`; };
+    div.innerHTML=`
+      <img src="${firstImage}" alt="${l.itemName}" />
+      <div class="listing-info">
+        <div class="listing-name">${l.itemName}</div>
+        <div class="listing-price">Price: ${l.price.toLocaleString('en-US',{style:'currency',currency:'EGP'})}</div>
+        <div>Description: ${l.itemDescription || 'No description provided.'}</div>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+document.getElementById('searchInput').addEventListener('input',e=>{
+  const searchTerm=e.target.value.toLowerCase();
+  renderListings(listings.filter(l=>l.itemName.toLowerCase().includes(searchTerm)));
+});
+
+document.getElementById('sortSelect').addEventListener('change',e=>{
+  let sorted=[...listings];
+  if(e.target.value==='asc'){sorted.sort((a,b)=>a.price-b.price);}
+  else if(e.target.value==='desc'){sorted.sort((a,b)=>b.price-a.price);}
+  renderListings(sorted);
+});
+
+fetchListings();
+</script>
+</body>
+</html>

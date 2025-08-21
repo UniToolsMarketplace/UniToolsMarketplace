@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dental Tool Listing</title>
+<style>
+body { font-family: Arial, sans-serif; max-width:900px; margin:20px auto; padding:0 16px; }
+h1 { color:#0072ce; margin-bottom:16px; }
+img { max-width:300px; max-height:300px; margin-right:16px; border-radius:8px; object-fit:contain; }
+.listing-images { display:flex; flex-wrap:wrap; margin-bottom:16px; }
+.listing-info { margin-bottom:12px; }
+.listing-info div { margin-bottom:6px; }
+.contact { margin-top:16px; padding:12px; border:1px solid #0072ce; border-radius:8px; }
+#contactContainer { display:none; margin-top:12px; }
+</style>
+</head>
+<body>
+<h1 id="itemName">Loading...</h1>
+<div class="listing-images" id="imagesContainer"></div>
+<div class="listing-info">
+  <div id="itemDescription"></div>
+  <div id="itemPrice"></div>
+  <div id="pricePeriod"></div>
+</div>
+
+<div class="contact" id="contactInfo">
+  <strong>Seller Name:</strong> <span id="sellerName"></span><br/>
+  <strong>Email:</strong> <span id="sellerEmail"></span><br/>
+</div>
+
+<div id="contactContainer">
+  <div>Phone: <span id="contactNumber"></span></div>
+  <div>WhatsApp: <span id="whatsappNumber"></span></div>
+</div>
+
+<button id="viewContactsBtn">View Contact Numbers</button>
+
+<script>
+async function fetchListing() {
+  const pathParts = window.location.pathname.split('/');
+  const listingId = pathParts[pathParts.length - 1];
+
+  // Determine if this is a sell or lease listing
+  let apiBase = '/api/sell/listings/';
+  const referer = document.referrer;
+  if (referer.includes('/preowned/rent') || referer.includes('/preowned/lease')) {
+    apiBase = '/api/lease/listings/';
+  }
+
+  try {
+    const res = await fetch(apiBase + listingId);
+    if (!res.ok) throw new Error('Listing not found');
+    const listing = await res.json();
+
+    document.getElementById('itemName').textContent = listing.itemName;
+    document.getElementById('itemDescription').textContent = listing.itemDescription || 'No description provided.';
+    document.getElementById('itemPrice').textContent = 'Price: ' + listing.price.toLocaleString('en-US', {style:'currency', currency:'EGP'});
+    document.getElementById('pricePeriod').textContent = listing.pricePeriod ? `Price Period: ${listing.pricePeriod}` : '';
+
+    const imagesContainer = document.getElementById('imagesContainer');
+    if (listing.images && listing.images.length > 0) {
+      listing.images.forEach(img => {
+        const imageEl = document.createElement('img');
+        imageEl.src = img;
+        imagesContainer.appendChild(imageEl);
+      });
+    } else {
+      imagesContainer.textContent = 'No images available.';
+    }
+
+    document.getElementById('sellerName').textContent = listing.sellerName || 'N/A';
+    document.getElementById('sellerEmail').textContent = listing.email || 'N/A';
+    document.getElementById('contactNumber').textContent = listing.contactNumber || 'N/A';
+    document.getElementById('whatsappNumber').textContent = listing.whatsappNumber || 'N/A';
+
+    // Button click to show numbers and notify server
+    const btn = document.getElementById('viewContactsBtn');
+    btn.addEventListener('click', async () => {
+      document.getElementById('contactContainer').style.display = 'block';
+      btn.disabled = true;
+
+      // Notify server
+      await fetch(`/api/notify-view-contact/${listingId}`, { method: 'POST' });
+    });
+
+  } catch(err) {
+    document.body.innerHTML = `<h1>Error</h1><p>${err.message}</p>`;
+  }
+}
+
+fetchListing();
+</script>
+</body>
+</html>

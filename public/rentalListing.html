@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rental Listing</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 900px; margin: 20px auto; padding: 0 16px; }
+    h1 { color: #0072ce; }
+    .gallery { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+    .gallery img { max-width: 200px; border-radius: 8px; object-fit: contain; border: 1px solid #ccc; }
+    .info { margin-bottom: 20px; }
+    .contact-section { margin-top: 20px; }
+    .contact-btn { padding: 10px; background: #0072ce; color: white; border: none; border-radius: 6px; cursor: pointer; }
+    .contact-btn:hover { background: #005fa3; }
+    #contactNumbers { display: none; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1 id="itemName"></h1>
+
+  <div class="gallery" id="gallery"></div>
+
+  <div class="info">
+    <p><strong>Description:</strong> <span id="itemDescription"></span></p>
+    <p><strong>Price:</strong> <span id="price"></span> EGP / <span id="pricePeriod"></span></p>
+  </div>
+
+  <div class="contact-section">
+    <button class="contact-btn" onclick="showContacts()">View Contact Numbers</button>
+    <div id="contactNumbers"></div>
+  </div>
+
+  <script>
+    async function fetchListing() {
+      const id = window.location.pathname.split('/').pop();
+      const res = await fetch(`/api/rent-listing/${id}`);
+      if (!res.ok) {
+        document.body.innerHTML = "<h2>Listing not found.</h2>";
+        return;
+      }
+      const listing = await res.json();
+
+      document.getElementById('itemName').innerText = listing.itemName;
+      document.getElementById('itemDescription').innerText = listing.itemDescription || "No description provided.";
+      document.getElementById('price').innerText = listing.price;
+      document.getElementById('pricePeriod').innerText = listing.pricePeriod;
+
+      const gallery = document.getElementById('gallery');
+      listing.images.forEach(img => {
+        const image = document.createElement('img');
+        image.src = img;
+        gallery.appendChild(image);
+      });
+
+      const contactDiv = document.getElementById('contactNumbers');
+      contactDiv.innerHTML = `
+        <p><strong>Contact Number:</strong> ${listing.contactNumber}</p>
+        <p><strong>WhatsApp:</strong> ${listing.whatsappNumber}</p>
+      `;
+    }
+
+    function showContacts() {
+      document.getElementById('contactNumbers').style.display = "block";
+      // TODO: Notify you here (could trigger a fetch to /notify-view)
+    }
+
+    fetchListing();
+  </script>
+</body>
+</html>

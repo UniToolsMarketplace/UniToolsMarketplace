@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Preowned Items - Faculty of Dentistry</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      color: #0072ce;
+      margin-bottom: 40px;
+    }
+    .option-button {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      border: 2px solid #0072ce;
+      border-radius: 8px;
+      padding: 20px;
+      background-color: white;
+      text-decoration: none;
+      color: #0072ce;
+      font-weight: bold;
+      font-size: 1.2rem;
+      width: 220px;
+      margin: 10px;
+      transition: background-color 0.3s ease;
+    }
+    .option-button:hover {
+      background-color: #0072ce;
+      color: white;
+    }
+    .option-button img {
+      max-width: 120px;
+      margin-bottom: 15px;
+    }
+    .buttons-container {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      max-width: 800px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <h1>Preowned Items Marketplace</h1>
+  <div class="buttons-container">
+    <a href="/preowned/sell" class="option-button">
+      <img src="/sell-tools.png" alt="Sell Tools" />
+      Sell Tools
+    </a>
+    <a href="/preowned/buy" class="option-button">
+      <img src="/buy-tools.png" alt="Buy Tools" />
+      Buy Tools
+    </a>
+    <a href="/preowned/lease" class="option-button">
+      <img src="/offer-lease.png" alt="Offer For Lease" />
+      Offer For Lease
+    </a>
+    <a href="/preowned/rent" class="option-button">
+      <img src="/rent-tools.png" alt="Rent" />
+      Rent
+    </a>
+  </div>
+</body>
+</html>

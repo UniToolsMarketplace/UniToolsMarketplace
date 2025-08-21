@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Lease Your Dental Tool</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+body { font-family: Arial, sans-serif; max-width:720px; margin:30px auto; padding:0 16px; }
+h1 { color:#0072ce; }
+label { display:block; margin-top:12px; font-weight:600; }
+input, textarea { width:100%; padding:8px; margin-top:6px; box-sizing:border-box; }
+button { margin-top:16px; padding:10px 14px; background:#0072ce; color:#fff; border:0; border-radius:6px; cursor:pointer; }
+small.note { color:#666; display:block; margin-top:6px; }
+</style>
+</head>
+<body>
+<h1>Lease Your Dental Tool</h1>
+<form id="leaseForm" action="/preowned/lease" method="POST" enctype="multipart/form-data">
+  <label>Lender Name (optional)</label>
+  <input name="sellerName" type="text" placeholder="Your name" />
+  
+  <label>University Email (only @bue.edu.eg)</label>
+  <input name="email" type="email" placeholder="you@bue.edu.eg" required />
+  
+  <label>Contact Number</label>
+  <input name="contactNumber" type="tel" placeholder="+20..." required />
+  
+  <label>WhatsApp Contact Number</label>
+  <input name="whatsappNumber" type="tel" placeholder="+20..." />
+  
+  <label>Item Name</label>
+  <input name="itemName" type="text" required />
+  
+  <label>Item Description</label>
+  <textarea name="itemDescription" rows="4" placeholder="Describe the item..."></textarea>
+  
+  <label>Price (EGP)</label>
+  <input name="price" type="number" min="0" step="0.01" required />
+  
+  <label>Price Period</label>
+  <select name="pricePeriod" required>
+    <option value="">Select period</option>
+    <option value="hour">per hour</option>
+    <option value="day">per day</option>
+    <option value="week">per week</option>
+    <option value="month">per month</option>
+  </select>
+  
+  <label>Upload Images</label>
+  <input name="images" type="file" accept="image/*" multiple />
+
+  <small class="note">After submitting you'll receive an OTP email. Confirm to publish your lease listing. Management links will be sent too.</small>
+  
+  <button type="submit">Submit & Send OTP</button>
+</form>
+</body>
+</html>
