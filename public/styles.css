@@ -221,7 +221,7 @@ body {
     justify-content: center;
     padding-left: 0;
     margin-top: 10px;
-    margin-right: 100px;
+    margin-left: -100px;
   }
 
   .title-row h1 {
