@@ -189,9 +189,12 @@ const storageLease = multer.diskStorage({
 const uploadLease = multer({ storage: storageLease });
 
 app.post('/preowned/lease', uploadLease.array('images', 5), async (req, res) => {
-  const { sellerName='', email, contactNumber='', whatsappNumber='', itemName, itemDescription='', price, pricePeriod='' } = req.body;
-  if (!email || !email.endsWith('@bue.edu.eg')) return res.status(400).send('Email must be @bue.edu.eg domain');
-  if (!itemName || !price) return res.status(400).send('Missing required fields');
+  const { seller_name='', email, contact_number='', whatsapp_number='', item_name, item_description='', price, price_period='' } = req.body;
+
+  if (!email || !email.endsWith('@bue.edu.eg')) 
+    return res.status(400).send('Email must be @bue.edu.eg domain');
+  if (!item_name || !price) 
+    return res.status(400).send('Missing required fields');
 
   const id = uuidv4();
   const otp = Math.floor(100000 + Math.random()*900000).toString();
@@ -201,7 +204,7 @@ app.post('/preowned/lease', uploadLease.array('images', 5), async (req, res) => 
   await pool.query(
     `INSERT INTO lease_listings (id, seller_name, email, contact_number, whatsapp_number, item_name, item_description, price, price_period, images, is_published)
      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
-    [id, sellerName, email, contactNumber, whatsappNumber, itemName, itemDescription, price, pricePeriod, images, false]
+    [id, seller_name, email, contact_number, whatsapp_number, item_name, item_description, price, price_period, images, false]
   );
 
   const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
@@ -214,6 +217,7 @@ app.post('/preowned/lease', uploadLease.array('images', 5), async (req, res) => 
   }, () => {});
   res.send(`<h1>OTP sent to your email!</h1><a href="${verifyUrl}">Verify here</a>`);
 });
+
 
 app.get('/verify-otp/lease', (req, res) => {
   res.send(`<form action="/verify-otp/lease" method="POST">
