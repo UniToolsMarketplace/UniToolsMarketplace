@@ -140,6 +140,26 @@ app.post('/preowned/sell', upload.array('images', 5), async (req, res) => {
   res.send(`<h1>OTP sent to your email!</h1><a href="${verifyUrl}">Verify here</a>`);
 });
 
+app.get('/verify-otp/sell', (req, res) => {
+  res.send(`<form action="/verify-otp/sell" method="POST">
+    <input type="hidden" name="id" value="${req.query.id}" />
+    <input type="hidden" name="email" value="${req.query.email}" />
+    <label>Enter OTP:</label><input name="otp" required />
+    <button type="submit">Verify</button>
+  </form>`);
+});
+
+app.post('/verify-otp/sell', async (req, res) => {
+  const { id, email, otp } = req.body;
+  const otpData = otpStore[email];
+  if (!otpData || otpData.otp !== otp || otpData.listingId !== id || otpData.type !== "sell")
+    return res.status(400).send('Invalid OTP');
+
+  await pool.query("UPDATE sell_listings SET is_published = true WHERE id = $1", [id]);
+  delete otpStore[email];
+  res.send(`<h1>Sell Listing Verified!</h1><a href="/preowned/buy">View listings</a>`);
+});
+
 // ---------------- LEASE APIs ----------------
 app.get('/api/lease/listings', async (req, res) => {
   const result = await pool.query("SELECT * FROM lease_listings WHERE is_published = true");
@@ -153,6 +173,66 @@ app.get('/api/lease/listings/:id', async (req, res) => {
   );
   if (result.rows.length === 0) return res.status(404).json({ error: "Listing not found" });
   res.json(result.rows[0]);
+});
+
+// Separate multer storage for lease
+const storageLease = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const dir = path.join(__dirname, 'uploads/lease/pending');
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
+});
+const uploadLease = multer({ storage: storageLease });
+
+app.post('/preowned/lease', uploadLease.array('images', 5), async (req, res) => {
+  const { sellerName='', email, contactNumber='', whatsappNumber='', itemName, itemDescription='', price, pricePeriod='' } = req.body;
+  if (!email || !email.endsWith('@bue.edu.eg')) return res.status(400).send('Email must be @bue.edu.eg domain');
+  if (!itemName || !price) return res.status(400).send('Missing required fields');
+
+  const id = uuidv4();
+  const otp = Math.floor(100000 + Math.random()*900000).toString();
+  otpStore[email] = { otp, listingId: id, type: "lease" };
+
+  const images = req.files ? req.files.map(f => `/uploads/lease/pending/${f.filename}`) : [];
+  await pool.query(
+    `INSERT INTO lease_listings (id, seller_name, email, contact_number, whatsapp_number, item_name, item_description, price, price_period, images, is_published)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+    [id, sellerName, email, contactNumber, whatsappNumber, itemName, itemDescription, price, pricePeriod, images, false]
+  );
+
+  const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
+  const verifyUrl = `${baseUrl}/verify-otp/lease?id=${id}&email=${encodeURIComponent(email)}`;
+  transporter.sendMail({
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: 'OTP for Your Lease Listing',
+    html: `<p>Your OTP: <b>${otp}</b></p><p>Verify: <a href="${verifyUrl}">${verifyUrl}</a></p>`
+  }, () => {});
+  res.send(`<h1>OTP sent to your email!</h1><a href="${verifyUrl}">Verify here</a>`);
+});
+
+app.get('/verify-otp/lease', (req, res) => {
+  res.send(`<form action="/verify-otp/lease" method="POST">
+    <input type="hidden" name="id" value="${req.query.id}" />
+    <input type="hidden" name="email" value="${req.query.email}" />
+    <label>Enter OTP:</label><input name="otp" required />
+    <button type="submit">Verify</button>
+  </form>`);
+});
+
+app.post('/verify-otp/lease', async (req, res) => {
+  const { id, email, otp } = req.body;
+  const otpData = otpStore[email];
+  if (!otpData || otpData.otp !== otp || otpData.listingId !== id || otpData.type !== "lease")
+    return res.status(400).send('Invalid OTP');
+
+  await pool.query("UPDATE lease_listings SET is_published = true WHERE id = $1", [id]);
+  delete otpStore[email];
+  res.send(`<h1>Lease Listing Verified!</h1><a href="/preowned/rent">View listings</a>`);
 });
 
 // ---------------- SERVER ----------------
