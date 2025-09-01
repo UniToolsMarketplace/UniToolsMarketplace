@@ -72,29 +72,15 @@ const otpStore = {};
 // ----------- ROUTES ------------
 
 // Home + Pages
-app.get('/preowned-puzzle.png', (req, res) =>
-  res.sendFile(path.join(__dirname, 'public', 'preowned-puzzle.png'))
-);
-app.get('/preowned-items.png', (req, res) =>
-  res.sendFile(path.join(__dirname, 'public', 'preowned-items.png'))
-);
-app.get('/arrow.png', (req, res) =>
-  res.sendFile(path.join(__dirname, 'public', 'arrow.png'))
-);
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public/index.html')));
-app.get('/dentistry/preowned/sell', (req, res) => res.sendFile(path.join(__dirname, 'public/sell.html')));
-app.get('/dentistry/preowned/buy', (req, res) => res.sendFile(path.join(__dirname, 'public/buy.html')));
-app.get('/dentistry/preowned/lease', (req, res) => res.sendFile(path.join(__dirname, 'public/lease.html')));
-app.get('/dentistry/preowned/rent', (req, res) => res.sendFile(path.join(__dirname, 'public/rent.html')));
+app.get('/preowned/sell', (req, res) => res.sendFile(path.join(__dirname, 'public/sell.html')));
+app.get('/preowned/buy', (req, res) => res.sendFile(path.join(__dirname, 'public/buy.html')));
+app.get('/preowned/lease', (req, res) => res.sendFile(path.join(__dirname, 'public/lease.html')));
+app.get('/preowned/rent', (req, res) => res.sendFile(path.join(__dirname, 'public/rent.html')));
 app.get('/listing/:id', (req,res) => res.sendFile(path.join(__dirname,'public/listing.html')));
 app.get('/faculties', (req, res) => res.sendFile(path.join(__dirname, 'public/faculties.html')));
 app.get('/dentistry', (req, res) => res.sendFile(path.join(__dirname, 'public/dentistry.html')));
-app.get('/dentistry/preowned', (req, res) => {
-  const filePath = path.join(__dirname, 'public/preowned.html');
-  console.log("Serving:", filePath);
-  res.sendFile(filePath);
-});
-
+app.get('/preowned', (req, res) => res.sendFile(path.join(__dirname, 'public/preowned.html')));
 
 // ---------------- SELL APIs ----------------
 
@@ -125,7 +111,6 @@ app.post('/preowned/sell', upload.array('images', 5), (req, res) => {
   listings.push({ id, sellerName, email, contactNumber, whatsappNumber, itemName, itemDescription, price: parseFloat(price), pricePeriod, images, isPublished: false, otpVerified: false });
   writeSellListings(listings);
 
-  const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
   const verifyUrl = `${baseUrl}/verify-otp/sell?id=${id}&email=${encodeURIComponent(email)}`;
   const mailOptions = {
     from: process.env.EMAIL_USER,
@@ -199,7 +184,6 @@ app.post('/preowned/lease', uploadLease.array('images', 5), (req, res) => {
   const otp = Math.floor(100000 + Math.random()*900000).toString();
   otpStore[email] = { otp, listingId: id, type: "lease" };
 
-  // ✅ Save images paths correctly
   const images = req.files ? req.files.map(f => `/uploads/lease/pending/${f.filename}`) : [];
   const listings = readLeaseListings();
   listings.push({ id, sellerName, email, contactNumber, whatsappNumber, itemName, itemDescription, price: parseFloat(price), pricePeriod, images, isPublished: false, otpVerified: false });
@@ -215,7 +199,6 @@ app.post('/preowned/lease', uploadLease.array('images', 5), (req, res) => {
   transporter.sendMail(mailOptions, () => {});
   res.send(`<h1>OTP sent to your email!</h1><a href="${verifyUrl}">Verify here</a>`);
 });
-
 
 // Verify OTP for LEASE
 app.get('/verify-otp/lease', (req, res) => {
@@ -244,6 +227,8 @@ app.post('/verify-otp/lease', (req, res) => {
 
 // -------------------- Run Server -------------------
 const port = process.env.PORT || 3000;
+const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
+
 app.listen(port, () => console.log(`Server running on port ${port}`));
 
 app.post("/api/notify-view-contact", (req, res) => {
@@ -276,4 +261,3 @@ app.post("/api/notify-view-contact", (req, res) => {
     res.json({ success: true });
   });
 });
-
