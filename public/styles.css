@@ -228,6 +228,11 @@ body {
     text-align: center;
   }
 
+  .title-row img.arrow {
+    width: 0.1px;
+    margin-right: 6px;
+  }
+
   .tile {
     width: 220px;
     font-size: 18px;
