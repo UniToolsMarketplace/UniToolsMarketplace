@@ -16,22 +16,22 @@ img { max-width:300px; max-height:300px; margin-right:0px; border-radius:8px; ob
 </style>
 </head>
 <body>
-<h1 id="itemName">Loading...</h1>
+<h1 id="item_name">Loading...</h1>
 <div class="listing-images" id="imagesContainer"></div>
 <div class="listing-info">
-  <div id="itemDescription"></div>
-  <div id="itemPrice"></div>
-  <div id="pricePeriod"></div>
+  <div id="item_description"></div>
+  <div id="item_price"></div>
+  <div id="price_period"></div>
 </div>
 
 <div class="contact" id="contactInfo">
-  <strong>Seller Name:</strong> <span id="sellerName"></span><br/>
-  <strong>Email:</strong> <span id="sellerEmail"></span><br/>
+  <strong>Seller Name:</strong> <span id="seller_name"></span><br/>
+  <strong>Email:</strong> <span id="seller_email"></span><br/>
 </div>
 
 <div id="contactContainer">
-  <div>Phone: <span id="contactNumber"></span></div>
-  <div>WhatsApp: <span id="whatsappNumber"></span></div>
+  <div>Phone: <span id="contact_number"></span></div>
+  <div>WhatsApp: <span id="whatsapp_number"></span></div>
 </div>
 
 <button id="viewContactsBtn">View Contact Numbers</button>
@@ -53,10 +53,10 @@ async function fetchListing() {
     if (!res.ok) throw new Error('Listing not found');
     const listing = await res.json();
 
-    document.getElementById('itemName').textContent = listing.itemName;
-    document.getElementById('itemDescription').textContent = listing.itemDescription || 'No description provided.';
-    document.getElementById('itemPrice').textContent = 'Price: ' + listing.price.toLocaleString('en-US', {style:'currency', currency:'EGP'});
-    document.getElementById('pricePeriod').textContent = listing.pricePeriod ? `Price Period: ${listing.pricePeriod}` : '';
+    document.getElementById('item_name').textContent = listing.item_name;
+    document.getElementById('item_description').textContent = listing.item_description || 'No description provided.';
+    document.getElementById('item_price').textContent = 'Price: ' + listing.price.toLocaleString('en-US', {style:'currency', currency:'EGP'});
+    document.getElementById('price_period').textContent = listing.price_period ? `Price Period: ${listing.price_period}` : '';
 
     const imagesContainer = document.getElementById('imagesContainer');
     if (listing.images && listing.images.length > 0) {
@@ -69,10 +69,10 @@ async function fetchListing() {
       imagesContainer.textContent = 'No images available.';
     }
 
-    document.getElementById('sellerName').textContent = listing.sellerName || 'N/A';
-    document.getElementById('sellerEmail').textContent = listing.email || 'N/A';
-    document.getElementById('contactNumber').textContent = listing.contactNumber || 'N/A';
-    document.getElementById('whatsappNumber').textContent = listing.whatsappNumber || 'N/A';
+    document.getElementById('seller_name').textContent = listing.sellerName || 'N/A';
+    document.getElementById('seller_email').textContent = listing.email || 'N/A';
+    document.getElementById('contact_number').textContent = listing.contactNumber || 'N/A';
+    document.getElementById('whatsapp_number').textContent = listing.whatsappNumber || 'N/A';
 
     // Button click to show numbers and notify server
     const btn = document.getElementById('viewContactsBtn');
