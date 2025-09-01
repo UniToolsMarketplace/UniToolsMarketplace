@@ -84,28 +84,28 @@
     <div class="form-container">
       <form id="leaseForm" action="/preowned/lease" method="POST" enctype="multipart/form-data">
         <label>Lender Name (optional)</label>
-        <input name="sellerName" type="text" placeholder="Your name" />
+        <input name="seller_name" type="text" placeholder="Your name" />
 
         <label>University Email (only @bue.edu.eg)</label>
         <input name="email" type="email" placeholder="you@bue.edu.eg" required />
 
         <label>Contact Number</label>
-        <input name="contactNumber" type="tel" placeholder="+20..." required />
+        <input name="contact_number" type="tel" placeholder="+20..." required />
 
         <label>WhatsApp Contact Number</label>
-        <input name="whatsappNumber" type="tel" placeholder="+20..." />
+        <input name="whatsapp_number" type="tel" placeholder="+20..." />
 
         <label>Item Name</label>
-        <input name="itemName" type="text" required />
+        <input name="item_name" type="text" required />
 
         <label>Item Description</label>
-        <textarea name="itemDescription" rows="4" placeholder="Describe the item..."></textarea>
+        <textarea name="item_description" rows="4" placeholder="Describe the item..."></textarea>
 
         <label>Price (EGP)</label>
         <input name="price" type="number" min="0" step="0.01" required />
 
         <label>Price Period</label>
-        <select name="pricePeriod" required>
+        <select name="price_period" required>
           <option value="">Select period</option>
           <option value="hour">Per Hour</option>
           <option value="day">Per Day</option>
