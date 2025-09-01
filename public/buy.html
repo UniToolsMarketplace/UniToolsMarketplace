@@ -139,11 +139,11 @@
         div.className = 'listing-card';
         div.onclick = () => { window.location.href = `/listing/${l.id}`; };
         div.innerHTML = `
-          <img src="${firstImage}" alt="${l.itemName}" />
+          <img src="${firstImage}" alt="${l.item_name}" />
           <div class="listing-info">
-            <div class="listing-name">${l.itemName}</div>
+            <div class="listing-name">${l.item_name}</div>
             <div class="listing-price">${l.price.toLocaleString('en-US',{style:'currency',currency:'EGP'})}</div>
-            <div class="listing-desc">${l.itemDescription || 'No description provided.'}</div>
+            <div class="listing-desc">${l.item_description || 'No description provided.'}</div>
           </div>
         `;
         container.appendChild(div);
@@ -152,7 +152,7 @@
 
     document.getElementById('searchInput').addEventListener('input', e => {
       const searchTerm = e.target.value.toLowerCase();
-      renderListings(listings.filter(l => l.itemName.toLowerCase().includes(searchTerm)));
+      renderListings(listings.filter(l => l.item_name.toLowerCase().includes(searchTerm)));
     });
 
     document.getElementById('sortSelect').addEventListener('change', e => {
