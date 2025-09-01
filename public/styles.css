@@ -221,12 +221,12 @@ body {
     justify-content: center;
     padding-left: 0;
     margin-top: 10px;
-    margin-left: 100px;
   }
 
   .title-row h1 {
     font-size: 22px;
     text-align: center;
+    margin-right: 50px;
   }
 
   .title-row img.arrow {
