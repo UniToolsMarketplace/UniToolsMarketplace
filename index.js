@@ -1,3 +1,44 @@
+const { Pool } = require('pg');
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
+
+async function initDB() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS sell_listings (
+      id UUID PRIMARY KEY,
+      seller_name TEXT,
+      email TEXT,
+      contact_number TEXT,
+      whatsapp_number TEXT,
+      item_name TEXT,
+      item_description TEXT,
+      price NUMERIC,
+      price_period TEXT,
+      images TEXT[],
+      is_published BOOLEAN DEFAULT false
+    );
+  `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS lease_listings (
+      id UUID PRIMARY KEY,
+      seller_name TEXT,
+      email TEXT,
+      contact_number TEXT,
+      whatsapp_number TEXT,
+      item_name TEXT,
+      item_description TEXT,
+      price NUMERIC,
+      price_period TEXT,
+      images TEXT[],
+      is_published BOOLEAN DEFAULT false
+    );
+  `);
+}
+initDB();
+
 process.on("uncaughtException", (err) => {
   console.error("[UNCAUGHT EXCEPTION]", err);
 });
@@ -49,22 +90,28 @@ const SELL_LISTINGS_FILE = path.join(__dirname, 'listingsforsale.json');
 const LEASE_LISTINGS_FILE = path.join(__dirname, 'listingsforlease.json');
 
 // Helpers for SELL
-function readSellListings() {
-  try { return JSON.parse(fs.readFileSync(SELL_LISTINGS_FILE, 'utf8')); }
-  catch { return []; }
-}
-function writeSellListings(listings) {
-  fs.writeFileSync(SELL_LISTINGS_FILE, JSON.stringify(listings, null, 2));
-}
+await pool.query(
+  `INSERT INTO sell_listings 
+  (id, seller_name, email, contact_number, whatsapp_number, item_name, item_description, price, price_period, images, is_published) 
+  VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+  [id, sellerName, email, contactNumber, whatsappNumber, itemName, itemDescription, price, pricePeriod, images, false]
+);
+
+const result = await pool.query("SELECT * FROM sell_listings WHERE is_published = true");
+res.json(result.rows);
+
 
 // Helpers for LEASE
-function readLeaseListings() {
-  try { return JSON.parse(fs.readFileSync(LEASE_LISTINGS_FILE, 'utf8')); }
-  catch { return []; }
-}
-function writeLeaseListings(listings) {
-  fs.writeFileSync(LEASE_LISTINGS_FILE, JSON.stringify(listings, null, 2));
-}
+await pool.query(
+  `INSERT INTO lease_listings 
+  (id, seller_name, email, contact_number, whatsapp_number, item_name, item_description, price, price_period, images, is_published) 
+  VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+  [id, sellerName, email, contactNumber, whatsappNumber, itemName, itemDescription, price, pricePeriod, images, false]
+);
+
+const result = await pool.query("SELECT * FROM lease_listings WHERE is_published = true");
+res.json(result.rows);
+
 
 // OTP store
 const otpStore = {};
