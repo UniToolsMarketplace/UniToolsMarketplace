@@ -69,10 +69,10 @@ async function fetchListing() {
       imagesContainer.textContent = 'No images available.';
     }
 
-    document.getElementById('seller_name').textContent = listing.sellerName || 'N/A';
+    document.getElementById('seller_name').textContent = listing.seller_name || 'N/A';
     document.getElementById('seller_email').textContent = listing.email || 'N/A';
-    document.getElementById('contact_number').textContent = listing.contactNumber || 'N/A';
-    document.getElementById('whatsapp_number').textContent = listing.whatsappNumber || 'N/A';
+    document.getElementById('contact_number').textContent = listing.contact_number || 'N/A';
+    document.getElementById('whatsapp_number').textContent = listing.whatsapp_number || 'N/A';
 
     // Button click to show numbers and notify server
     const btn = document.getElementById('viewContactsBtn');
