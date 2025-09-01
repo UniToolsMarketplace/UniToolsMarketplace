@@ -208,4 +208,39 @@ body {
   min-height: 180px;
 }
 
+/* ===========================
+   PHONES & TABLETS STYLES
+   =========================== */
+@media (max-width: 500px) {
+  .logo {
+    width: 240px;
+  }
+
+  /* Move title under logo, center it */
+  .title-row {
+    justify-content: center;
+    padding-left: 0;
+    margin-top: 10px;
+  }
+
+  .title-row h1 {
+    font-size: 22px;
+    text-align: center;
+  }
+
+  .title-row img.arrow {
+    width: 22px;
+    margin-right: 6px;
+  }
+
+  .tile {
+    width: 220px;
+    font-size: 18px;
+    padding: 20px;
+  }
+
+  .tile img {
+    width: 100px;
+  }
+}
 
