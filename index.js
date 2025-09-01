@@ -72,15 +72,29 @@ const otpStore = {};
 // ----------- ROUTES ------------
 
 // Home + Pages
+app.get('/preowned-puzzle.png', (req, res) =>
+  res.sendFile(path.join(__dirname, 'public', 'preowned-puzzle.png'))
+);
+app.get('/preowned-items.png', (req, res) =>
+  res.sendFile(path.join(__dirname, 'public', 'preowned-items.png'))
+);
+app.get('/arrow.png', (req, res) =>
+  res.sendFile(path.join(__dirname, 'public', 'arrow.png'))
+);
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public/index.html')));
-app.get('/preowned/sell', (req, res) => res.sendFile(path.join(__dirname, 'public/sell.html')));
-app.get('/preowned/buy', (req, res) => res.sendFile(path.join(__dirname, 'public/buy.html')));
-app.get('/preowned/lease', (req, res) => res.sendFile(path.join(__dirname, 'public/lease.html')));
-app.get('/preowned/rent', (req, res) => res.sendFile(path.join(__dirname, 'public/rent.html')));
+app.get('/dentistry/preowned/sell', (req, res) => res.sendFile(path.join(__dirname, 'public/sell.html')));
+app.get('/dentistry/preowned/buy', (req, res) => res.sendFile(path.join(__dirname, 'public/buy.html')));
+app.get('/dentistry/preowned/lease', (req, res) => res.sendFile(path.join(__dirname, 'public/lease.html')));
+app.get('/dentistry/preowned/rent', (req, res) => res.sendFile(path.join(__dirname, 'public/rent.html')));
 app.get('/listing/:id', (req,res) => res.sendFile(path.join(__dirname,'public/listing.html')));
 app.get('/faculties', (req, res) => res.sendFile(path.join(__dirname, 'public/faculties.html')));
 app.get('/dentistry', (req, res) => res.sendFile(path.join(__dirname, 'public/dentistry.html')));
-app.get('/dentistry/preowned', (req, res) => res.sendFile(path.join(__dirname, 'public/preowned.html')));
+app.get('/dentistry/preowned', (req, res) => {
+  const filePath = path.join(__dirname, 'public/preowned.html');
+  console.log("Serving:", filePath);
+  res.sendFile(filePath);
+});
+
 
 // ---------------- SELL APIs ----------------
 

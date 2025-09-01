@@ -1,57 +1,397 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<title>Lease Your Dental Tool</title>
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<style>
-body { font-family: Arial, sans-serif; max-width:720px; margin:30px auto; padding:0 16px; }
-h1 { color:#0072ce; }
-label { display:block; margin-top:12px; font-weight:600; }
-input, textarea { width:100%; padding:8px; margin-top:6px; box-sizing:border-box; }
-button { margin-top:16px; padding:10px 14px; background:#0072ce; color:#fff; border:0; border-radius:6px; cursor:pointer; }
-small.note { color:#666; display:block; margin-top:6px; }
-</style>
+  <meta charset="utf-8" />
+  <title>Lease Your Dental Tool</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    .form-container {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 30px;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    form label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+      color: var(--primary);
+    }
+
+    form input,
+    form textarea,
+    form select {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    form input:focus,
+    form textarea:focus,
+    form select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 6px rgba(0, 114, 206, 0.4);
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border-radius: 8px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    button:hover {
+      background: #005da3;
+      transform: translateY(-2px);
+    }
+
+    small.note {
+      color: #666;
+      display: block;
+      margin-top: -10px;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+    }
+  </style>
 </head>
 <body>
-<h1>Lease Your Dental Tool</h1>
-<form id="leaseForm" action="/preowned/lease" method="POST" enctype="multipart/form-data">
-  <label>Lender Name (optional)</label>
-  <input name="sellerName" type="text" placeholder="Your name" />
-  
-  <label>University Email (only @bue.edu.eg)</label>
-  <input name="email" type="email" placeholder="you@bue.edu.eg" required />
-  
-  <label>Contact Number</label>
-  <input name="contactNumber" type="tel" placeholder="+20..." required />
-  
-  <label>WhatsApp Contact Number</label>
-  <input name="whatsappNumber" type="tel" placeholder="+20..." />
-  
-  <label>Item Name</label>
-  <input name="itemName" type="text" required />
-  
-  <label>Item Description</label>
-  <textarea name="itemDescription" rows="4" placeholder="Describe the item..."></textarea>
-  
-  <label>Price (EGP)</label>
-  <input name="price" type="number" min="0" step="0.01" required />
-  
-  <label>Price Period</label>
-  <select name="pricePeriod" required>
-    <option value="">Select period</option>
-    <option value="hour">per hour</option>
-    <option value="day">per day</option>
-    <option value="week">per week</option>
-    <option value="month">per month</option>
-  </select>
-  
-  <label>Upload Images</label>
-  <input name="images" type="file" accept="image/*" multiple />
+  <!-- Top section -->
+  <div class="section-top">
+    <img src="/lease-tools.png" alt="Lease Tools Form" class="logo" />
+    <div class="title-row">
+      <img src="/arrow.png" alt="Arrow" class="arrow" />
+      <h1>🡲Lease Your Tool</h1>
+    </div>
+  </div>
 
-  <small class="note">After submitting you'll receive an OTP email. Confirm to publish your lease listing. Management links will be sent too.</small>
-  
-  <button type="submit">Submit & Send OTP</button>
-</form>
+  <!-- Bottom section -->
+  <div class="section-bottom">
+    <div class="form-container">
+      <form id="leaseForm" action="/preowned/lease" method="POST" enctype="multipart/form-data">
+        <label>Lender Name (optional)</label>
+        <input name="sellerName" type="text" placeholder="Your name" />
+
+        <label>University Email (only @bue.edu.eg)</label>
+        <input name="email" type="email" placeholder="you@bue.edu.eg" required />
+
+        <label>Contact Number</label>
+        <input name="contactNumber" type="tel" placeholder="+20..." required />
+
+        <label>WhatsApp Contact Number</label>
+        <input name="whatsappNumber" type="tel" placeholder="+20..." />
+
+        <label>Item Name</label>
+        <input name="itemName" type="text" required />
+
+        <label>Item Description</label>
+        <textarea name="itemDescription" rows="4" placeholder="Describe the item..."></textarea>
+
+        <label>Price (EGP)</label>
+        <input name="price" type="number" min="0" step="0.01" required />
+
+        <label>Price Period</label>
+        <select name="pricePeriod" required>
+          <option value="">Select period</option>
+          <option value="hour">Per Hour</option>
+          <option value="day">Per Day</option>
+          <option value="week">Per Week</option>
+          <option value="month">Per Month</option>
+        </select>
+
+        <label>Upload Images</label>
+        <input name="images" type="file" accept="image/*" multiple />
+
+        <small class="note">After submitting you'll receive an OTP email. Confirm to publish your lease listing.</small>
+
+        <button type="submit">Submit & Send OTP</button>
+      </form>
+    </div>
+  </div>
 </body>
 </html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>UniTools Marketplace</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    /* Header */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      background: #EEF9FF;
+      padding: 0 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      z-index: 3000;
+    }
+
+    .header img.logo {
+      height: 70px;
+      width: 250px;  
+      margin-left: 10px;
+    }
+
+    .header h1 {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #002244;
+      margin: 0 0 0 10px;
+    }
+
+    /* Hamburger */
+    .hamburger {
+      cursor: pointer;
+      width: 30px;
+      height: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .hamburger span {
+      display: block;
+      height: 4px;
+      background: var(--primary);
+      border-radius: 3px;
+      transition: all 0.3s ease;
+    }
+
+    .hamburger.active span:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 6px);
+    }
+    .hamburger.active span:nth-child(2) {
+      opacity: 0;
+    }
+    .hamburger.active span:nth-child(3) {
+      transform: rotate(-45deg) translate(6px, -6px);
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      left: -260px;
+      top: 0;
+      width: 260px;
+      height: 100vh;
+      background: #EEF9FF;
+      padding: 20px;
+      box-shadow: 2px 0 6px rgba(0,0,0,0.1);
+      transition: left 0.3s ease;
+      z-index: 2500;
+      overflow-y: auto;
+    }
+    .sidebar.active {
+      left: 0;
+    }
+
+    /* Dark overlay */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.4);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease;
+      z-index: 2000;
+    }
+    .overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Sidebar nav */
+    .sidebar ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .sidebar li {
+      margin: 6px 0;
+    }
+    .sidebar a,
+    .sidebar .collapsible {
+      display: block;
+      color: var(--primary);
+      text-decoration: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-weight: 500;
+      transition: background 0.2s ease;
+      cursor: pointer;
+    }
+    .sidebar a:hover,
+    .sidebar .collapsible:hover {
+      background: rgba(0,114,206,0.15);
+    }
+    .caret {
+      float: right;
+      transition: transform 0.3s ease;
+    }
+    .caret.rotate {
+      transform: rotate(90deg);
+    }
+    .nested {
+      display: none;
+      padding-left: 16px;
+    }
+    .nested.show {
+      display: block;
+    }
+
+    /* Push content below header */
+    .content {
+      padding: 80px 20px 20px 20px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="hamburger" id="hamburger">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    <img src="/navigationbar.png" alt="Navigation Bar Logo" class="logo" />
+  </div>
+
+  <!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+  <ul>
+    <!-- Home button -->
+    <li>
+      <a href="/" style="font-weight:bold;">
+        🏠 Home
+      </a>
+    </li>
+
+    <!-- Collapsible menus -->
+    <li>
+      <div class="collapsible">
+        <a href="/" class="nav-link">Home</a>
+      </div>
+    </li>
+      <div class="collapsible">
+        <a href="/faculties" class="nav-link">BUE Marketplace</a>
+        <span class="caret">▶</span>
+      </div>
+      <ul class="nested">
+        <li>
+          <div class="collapsible">
+            <a href="/dentistry" class="nav-link">Dentistry Marketplace</a>
+            <span class="caret">▶</span>
+          </div>
+          <ul class="nested">
+            <li>
+              <div class="collapsible">
+                <a href="/dentistry/preowned" class="nav-link">Pre-owned</a>
+                <span class="caret">▶</span>
+              </div>
+              <ul class="nested">
+                <li><a href="/dentistry/preowned/rent">Rent</a></li>
+                <li><a href="/dentistry/preowned/lease">Lease</a></li>
+                <li><a href="/dentistry/preowned/sell">Sell</a></li>
+                <li><a href="/dentistry/preowned/buy">Buy</a></li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+
+        <ul class="nested">
+          <li>
+            <div class="collapsible">Dentistry Marketplace <span class="caret">▶</span></div>
+            <ul class="nested">
+              <li>
+                <div class="collapsible">Pre-owned <span class="caret">▶</span></div>
+                <ul class="nested">
+                  <li><a href="/dentistry/preowned/rent">Rent</a></li>
+                  <li><a href="/dentistry/preowned/lease">Lease</a></li>
+                  <li><a href="/dentistry/preowned/sell">Sell</a></li>
+                  <li><a href="/dentistry/preowned/buy">Buy</a></li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Overlay -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Main content -->
+  <div class="content">
+    <h2>Welcome to UniTools Marketplace</h2>
+    <p>Main content goes here...</p>
+  </div>
+
+  <script>
+    const hamburger = document.getElementById("hamburger");
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+
+    // Open/close sidebar
+    hamburger.addEventListener("click", () => {
+      hamburger.classList.toggle("active");
+      sidebar.classList.toggle("active");
+      overlay.classList.toggle("active");
+    });
+
+    // Close sidebar when clicking overlay
+    overlay.addEventListener("click", () => {
+      hamburger.classList.remove("active");
+      sidebar.classList.remove("active");
+      overlay.classList.remove("active");
+    });
+
+    // Collapsible menus
+    document.querySelectorAll(".collapsible").forEach(toggle => {
+      toggle.addEventListener("click", function () {
+        const nested = this.nextElementSibling;
+        const caret = this.querySelector(".caret");
+        if (nested) nested.classList.toggle("show");
+        if (caret) caret.classList.toggle("rotate");
+      });
+    });
+  </script>
+</body>
+</html>
+
+
+

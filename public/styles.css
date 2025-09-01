@@ -1,0 +1,211 @@
+:root {
+  --primary: #0072ce;
+  --bg-top: #EEF9FF;
+  --bg-bottom: #ffffff;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: Arial, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Split background using two sections */
+.section-top {
+  background: var(--bg-top);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 40px 20px 20px 20px;
+  text-align: center;
+}
+
+.section-bottom {
+  background: var(--bg-bottom);
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 60px 20px;
+}
+
+/* Layout for multiple cards */
+.section-bottom {
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+/* Equal height cards for Preowned Marketplace */
+.tile {
+  min-height: 220px;    /* adjust until matches PPT */
+  flex: 1 1 200px;      /* responsive grid: min 200px per card */
+  max-width: 220px;     /* keeps them uniform */
+}
+
+
+/* Logo */
+.logo {
+  width: 320px;
+  max-width: 80%;
+  margin-bottom: 20px;
+}
+
+/* Title row with arrow */
+.title-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto 10px auto;
+  padding-left: 20px;
+  margin-left: 250px;
+}
+
+.title-row img.arrow {
+  width: 40px;              /* arrow size like PPT */
+  height: auto;
+  margin-left: 250px;
+}
+
+/* Title row with arrow */
+.title-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto 10px auto;
+  padding-left: 20px;  /* small indent like PPT */
+}
+
+.title-row img.arrow {
+  width: 40px;       /* adjust until it matches your PPT scale */
+  margin-right: -800px;
+}
+
+.title-row h1 {
+  font-size: 34px;
+  font-weight: bold;
+  color: var(--primary);
+  margin: 0;
+}
+
+
+
+/* Marketplace card */
+.tile {
+
+/* Prevent card text from breaking into 2 lines */
+.tile-label {
+  white-space: nowrap;
+}
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  background: #ffffff;
+  border: 3px solid var(--primary);
+  border-radius: 12px;
+  width: 260px;
+  padding: 28px 20px;
+  color: var(--primary);
+  font-weight: bold;
+  font-size: 22px;
+  box-shadow: var(--shadow);
+  transition: all 0.25s ease;
+}
+
+.tile img {
+  width: 120px;
+  margin-bottom: 18px;
+}
+
+.tile:hover {
+  background: var(--primary);
+  color: #fff;
+  transform: translateY(-4px);
+}
+
+/* Responsive */
+@media (max-width: 500px) {
+  .logo { width: 240px; }
+  h1 { font-size: 26px; }
+  .tile { width: 220px; font-size: 18px; padding: 20px; }
+  .tile img { width: 100px; }
+}
+
+/* Inactive card styling */
+.tile.inactive {
+  border-color: #aaa;
+  color: #aaa;
+  cursor: not-allowed;
+  pointer-events: none;
+  box-shadow: none;
+}
+
+.tile.inactive img {
+  opacity: 0.6;
+}
+
+/* Ensure all card tiles in a row are equal height */
+.section-bottom {
+  gap: 20px; /* add spacing between multiple cards */
+}
+
+.tile {
+  min-height: 220px;              /* force equal height */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;        /* vertically center content */
+  text-align: center;
+}
+
+.tile-label {
+  display: block;
+  text-align: center;
+  margin-top: 10px;
+}
+
+/* Puzzle grid */
+.puzzle-grid {
+  display: grid;
+  grid-template-columns: 1fr 80px 1fr;
+  grid-template-rows: 1fr 80px 1fr;
+  gap: 20px;
+  justify-items: center;
+  align-items: center;
+}
+
+/* Place the 4 cards in corners */
+.puzzle-grid a:nth-of-type(1) { grid-column: 1; grid-row: 1; } /* Sell */
+.puzzle-grid a:nth-of-type(2) { grid-column: 3; grid-row: 1; } /* Buy */
+.puzzle-grid .puzzle-plus      { grid-column: 2; grid-row: 2; } /* Plus */
+.puzzle-grid a:nth-of-type(3) { grid-column: 1; grid-row: 3; } /* Lease */
+.puzzle-grid a:nth-of-type(4) { grid-column: 3; grid-row: 3; } /* Rent */
+
+/* Plus in the middle */
+.puzzle-plus {
+  font-size: 48px;
+  font-weight: bold;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Adjust tile sizing so they look equal */
+.puzzle-grid .tile {
+  width: 180px;
+  min-height: 180px;
+}
+
+

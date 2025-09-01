@@ -1,1 +1,18 @@
-[]
+[
+  {
+    "id": "c2f95799-7d2a-4592-9a87-3f291540e437",
+    "sellerName": "A E",
+    "email": "ahmed248423@bue.edu.eg",
+    "contactNumber": "+201220626665",
+    "whatsappNumber": "+201220626665",
+    "itemName": "Articulator",
+    "itemDescription": "ASA Great Condition",
+    "price": 1500,
+    "pricePeriod": "",
+    "images": [
+      "/uploads/pending/1756640854975-testing website.png"
+    ],
+    "isPublished": true,
+    "otpVerified": false
+  }
+]
