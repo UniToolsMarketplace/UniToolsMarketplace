@@ -125,35 +125,36 @@
       renderListings(listings);
     }
 
-    function renderListings(data) {
-      const container = document.getElementById('listingsContainer');
-      container.innerHTML = '';
-      if (data.length === 0) {
-        container.innerHTML = '<p>No listings found.</p>';
-        return;
-      }
+function renderListings(data) {
+  const container = document.getElementById('listingsContainer');
+  container.innerHTML = '';
+  if (data.length === 0) {
+    container.innerHTML = '<p>No listings found.</p>';
+    return;
+  }
 
-      data.forEach(l => {
-        const firstImage = l.images.length > 0 ? l.images[0] : 'placeholder.png';
-        const div = document.createElement('div');
-        div.className = 'listing-card';
-        div.onclick = () => { window.location.href = `/listing/${l.id}`; };
-        div.innerHTML = `
-          <img src="${firstImage}" alt="${l.itemName}" />
-          <div class="listing-info">
-            <div class="listing-name">${l.itemName}</div>
-            <div class="listing-price">${l.price.toLocaleString('en-US',{style:'currency',currency:'EGP'})} / ${l.pricePeriod || 'period not set'}</div>
-            <div class="listing-desc">${l.itemDescription || 'No description provided.'}</div>
-          </div>
-        `;
-        container.appendChild(div);
-      });
-    }
+  data.forEach(l => {
+    const firstImage = l.images.length > 0 ? l.images[0] : 'placeholder.png';
+    const div = document.createElement('div');
+    div.className = 'listing-card';
+    div.onclick = () => { window.location.href = `/listing/${l.id}`; };
+    div.innerHTML = `
+      <img src="${firstImage}" alt="${l.item_name}" />
+      <div class="listing-info">
+        <div class="listing-name">${l.item_name}</div>
+        <div class="listing-price">${Number(l.price).toLocaleString('en-US',{style:'currency',currency:'EGP'})} / ${l.price_period || 'period not set'}</div>
+        <div class="listing-desc">${l.item_description || 'No description provided.'}</div>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
 
-    document.getElementById('searchInput').addEventListener('input', e => {
-      const searchTerm = e.target.value.toLowerCase();
-      renderListings(listings.filter(l => l.itemName.toLowerCase().includes(searchTerm)));
-    });
+document.getElementById('searchInput').addEventListener('input', e => {
+  const searchTerm = e.target.value.toLowerCase();
+  renderListings(listings.filter(l => l.item_name.toLowerCase().includes(searchTerm)));
+});
+
 
     document.getElementById('sortSelect').addEventListener('change', e => {
       let sorted = [...listings];
