@@ -88,12 +88,24 @@ app.get('/preowned', (req, res) => res.sendFile(path.join(__dirname, 'public/pre
 
 // ---------------- SELL APIs ----------------
 app.get('/api/sell/listings', async (req, res) => {
-  const result = await pool.query("SELECT * FROM sell_listings WHERE is_published = true");
+  const page = parseInt(req.query.page) || 1;
+  const limit = 10;
+  const offset = (page - 1) * limit;
+
+  const totalResult = await pool.query("SELECT COUNT(*) FROM sell_listings WHERE is_published = true");
+  const total = parseInt(totalResult.rows[0].count);
+
+  const result = await pool.query(
+    "SELECT * FROM sell_listings WHERE is_published = true ORDER BY item_name LIMIT $1 OFFSET $2",
+    [limit, offset]
+  );
+
   const listings = result.rows.map(l => ({
     ...l,
     images: l.images ? l.images.map(img => `data:image/jpeg;base64,${img.toString('base64')}`) : []
   }));
-  res.json(listings);
+
+  res.json({ listings, total, page, totalPages: Math.ceil(total / limit) });
 });
 
 app.get('/api/sell/listings/:id', async (req, res) => {
@@ -162,12 +174,24 @@ app.post('/verify-otp/sell', async (req, res) => {
 
 // ---------------- LEASE APIs ----------------
 app.get('/api/lease/listings', async (req, res) => {
-  const result = await pool.query("SELECT * FROM lease_listings WHERE is_published = true");
+  const page = parseInt(req.query.page) || 1;
+  const limit = 10;
+  const offset = (page - 1) * limit;
+
+  const totalResult = await pool.query("SELECT COUNT(*) FROM lease_listings WHERE is_published = true");
+  const total = parseInt(totalResult.rows[0].count);
+
+  const result = await pool.query(
+    "SELECT * FROM lease_listings WHERE is_published = true ORDER BY item_name LIMIT $1 OFFSET $2",
+    [limit, offset]
+  );
+
   const listings = result.rows.map(l => ({
     ...l,
     images: l.images ? l.images.map(img => `data:image/jpeg;base64,${img.toString('base64')}`) : []
   }));
-  res.json(listings);
+
+  res.json({ listings, total, page, totalPages: Math.ceil(total / limit) });
 });
 
 app.get('/api/lease/listings/:id', async (req, res) => {
