@@ -197,14 +197,13 @@ function renderPagination(current, totalPages) {
     nav.appendChild(prevBtn);
   }
 
+
   // Page number buttons
   for (let i = 1; i <= totalPages; i++) {
     const btn = document.createElement('button');
     btn.innerText = i;
     btn.style.margin = "0 5px";
-      if (i === current) {
-    btn.classList.add("active");
-    btn.disabled = true;
+    btn.disabled = i === current;
     btn.onclick = () => fetchListings(i, currentSort, currentSearch);
     nav.appendChild(btn);
   }
