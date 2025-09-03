@@ -208,6 +208,44 @@ body {
   min-height: 180px;
 }
 
+/* Pagination styles */
+.pagination-nav {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.pagination-nav button {
+  margin: 0 5px;
+  padding: 8px 14px;
+  border: 2px solid var(--primary);
+  background: #fff;
+  color: var(--primary);
+  border-radius: 6px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pagination-nav button:hover:not(:disabled) {
+  background: var(--primary);
+  color: #fff;
+}
+
+.pagination-nav button:disabled {
+  background: #ddd;
+  color: #888;
+  border-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Highlight current page */
+.pagination-nav button.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  font-weight: bold;
+}
+
 /* ===========================
    PHONES & TABLETS STYLES
    =========================== */

@@ -202,7 +202,9 @@ function renderPagination(current, totalPages) {
     const btn = document.createElement('button');
     btn.innerText = i;
     btn.style.margin = "0 5px";
-    btn.disabled = i === current;
+    if (i === current) {
+  btn.classList.add("active");
+  btn.disabled = true;
     btn.onclick = () => fetchListings(i, currentSort, currentSearch);
     nav.appendChild(btn);
   }
