@@ -117,52 +117,83 @@
   </div>
 
   <script>
-    let listings = [];
+let listings = [];
+let currentPage = 1;
+const limit = 5;
 
-    async function fetchListings() {
-      const res = await fetch('/api/sell/listings');
-      listings = await res.json();
-      renderListings(listings);
-    }
+async function fetchListings(page = 1) {
+  const res = await fetch(`/api/sell/listings?page=${page}&limit=${limit}`);
+  const data = await res.json();
+  listings = data.listings;
+  renderListings(listings);
+  renderPagination(data.page, data.totalPages);
+}
 
-    function renderListings(data) {
-      const container = document.getElementById('listingsContainer');
-      container.innerHTML = '';
-      if (data.length === 0) {
-        container.innerHTML = '<p>No listings found.</p>';
-        return;
-      }
+function renderListings(data) {
+  const container = document.getElementById('listingsContainer');
+  container.innerHTML = '';
+  if (data.length === 0) {
+    container.innerHTML = '<p>No listings found.</p>';
+    return;
+  }
 
-      data.forEach(l => {
-        const firstImage = l.images.length > 0 ? l.images[0] : 'placeholder.png';
-        const div = document.createElement('div');
-        div.className = 'listing-card';
-        div.onclick = () => { window.location.href = `/listing/${l.id}`; };
-        div.innerHTML = `
-          <img src="${firstImage}" alt="${l.item_name}" />
-          <div class="listing-info">
-            <div class="listing-name">${l.item_name}</div>
-            <div class="listing-price">${l.price.toLocaleString('en-US',{style:'currency',currency:'EGP'})}</div>
-            <div class="listing-desc">${l.item_description || 'No description provided.'}</div>
-          </div>
-        `;
-        container.appendChild(div);
-      });
-    }
+  data.forEach(l => {
+    const firstImage = l.images.length > 0 ? l.images[0] : 'placeholder.png';
+    const div = document.createElement('div');
+    div.className = 'listing-card';
+    div.onclick = () => { window.location.href = `/listing/${l.id}`; };
+    div.innerHTML = `
+      <img src="${firstImage}" alt="${l.item_name}" />
+      <div class="listing-info">
+        <div class="listing-name">${l.item_name}</div>
+        <div class="listing-price">${Number(l.price).toLocaleString('en-US',{style:'currency',currency:'EGP'})}</div>
+        <div class="listing-desc">${l.item_description || 'No description provided.'}</div>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
 
-    document.getElementById('searchInput').addEventListener('input', e => {
-      const searchTerm = e.target.value.toLowerCase();
-      renderListings(listings.filter(l => l.item_name.toLowerCase().includes(searchTerm)));
-    });
+function renderPagination(page, totalPages) {
+  const container = document.getElementById('listingsContainer');
+  const nav = document.createElement('div');
+  nav.style.textAlign = "center";
+  nav.style.marginTop = "20px";
 
-    document.getElementById('sortSelect').addEventListener('change', e => {
-      let sorted = [...listings];
-      if (e.target.value === 'asc') { sorted.sort((a, b) => a.price - b.price); }
-      else if (e.target.value === 'desc') { sorted.sort((a, b) => b.price - a.price); }
-      renderListings(sorted);
-    });
+  if (page > 1) {
+    const prevBtn = document.createElement('button');
+    prevBtn.textContent = "Previous";
+    prevBtn.onclick = () => fetchListings(page - 1);
+    nav.appendChild(prevBtn);
+  }
 
-    fetchListings();
+  nav.append(` Page ${page} of ${totalPages} `);
+
+  if (page < totalPages) {
+    const nextBtn = document.createElement('button');
+    nextBtn.textContent = "Next";
+    nextBtn.onclick = () => fetchListings(page + 1);
+    nav.appendChild(nextBtn);
+  }
+
+  container.appendChild(nav);
+}
+
+// search filter
+document.getElementById('searchInput').addEventListener('input', e => {
+  const searchTerm = e.target.value.toLowerCase();
+  renderListings(listings.filter(l => l.item_name.toLowerCase().includes(searchTerm)));
+});
+
+// sorting
+document.getElementById('sortSelect').addEventListener('change', e => {
+  let sorted = [...listings];
+  if (e.target.value === 'asc') { sorted.sort((a, b) => a.price - b.price); }
+  else if (e.target.value === 'desc') { sorted.sort((a, b) => b.price - a.price); }
+  renderListings(sorted);
+});
+
+fetchListings();
   </script>
 </body>
 </html>

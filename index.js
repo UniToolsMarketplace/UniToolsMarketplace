@@ -86,26 +86,27 @@ app.get('/faculties', (req, res) => res.sendFile(path.join(__dirname, 'public/fa
 app.get('/dentistry', (req, res) => res.sendFile(path.join(__dirname, 'public/dentistry.html')));
 app.get('/preowned', (req, res) => res.sendFile(path.join(__dirname, 'public/preowned.html')));
 
-// ---------------- SELL APIs ----------------
+// ---------------- SELL APIs with pagination ----------------
 app.get('/api/sell/listings', async (req, res) => {
-  const result = await pool.query("SELECT * FROM sell_listings WHERE is_published = true");
+  let { page = 1, limit = 5 } = req.query;
+  page = parseInt(page);
+  limit = parseInt(limit);
+  const offset = (page - 1) * limit;
+
+  const totalResult = await pool.query("SELECT COUNT(*) FROM sell_listings WHERE is_published = true");
+  const total = parseInt(totalResult.rows[0].count);
+
+  const result = await pool.query(
+    "SELECT * FROM sell_listings WHERE is_published = true ORDER BY id DESC LIMIT $1 OFFSET $2",
+    [limit, offset]
+  );
+
   const listings = result.rows.map(l => ({
     ...l,
     images: l.images ? l.images.map(img => `data:image/jpeg;base64,${img.toString('base64')}`) : []
   }));
-  res.json(listings);
-});
 
-app.get('/api/sell/listings/:id', async (req, res) => {
-  const result = await pool.query(
-    "SELECT * FROM sell_listings WHERE id = $1 AND is_published = true",
-    [req.params.id]
-  );
-  if (result.rows.length === 0) return res.status(404).json({ error: "Listing not found" });
-
-  const row = result.rows[0];
-  row.images = row.images ? row.images.map(img => `data:image/jpeg;base64,${img.toString('base64')}`) : [];
-  res.json(row);
+  res.json({ listings, total, page, totalPages: Math.ceil(total / limit) });
 });
 
 app.post('/preowned/sell', upload.array('images'), async (req, res) => {
@@ -160,26 +161,27 @@ app.post('/verify-otp/sell', async (req, res) => {
   res.send(`<h1>Sell Listing Verified!</h1><a href="/preowned/buy">View listings</a>`);
 });
 
-// ---------------- LEASE APIs ----------------
+// ---------------- LEASE APIs with pagination ----------------
 app.get('/api/lease/listings', async (req, res) => {
-  const result = await pool.query("SELECT * FROM lease_listings WHERE is_published = true");
+  let { page = 1, limit = 5 } = req.query;
+  page = parseInt(page);
+  limit = parseInt(limit);
+  const offset = (page - 1) * limit;
+
+  const totalResult = await pool.query("SELECT COUNT(*) FROM lease_listings WHERE is_published = true");
+  const total = parseInt(totalResult.rows[0].count);
+
+  const result = await pool.query(
+    "SELECT * FROM lease_listings WHERE is_published = true ORDER BY id DESC LIMIT $1 OFFSET $2",
+    [limit, offset]
+  );
+
   const listings = result.rows.map(l => ({
     ...l,
     images: l.images ? l.images.map(img => `data:image/jpeg;base64,${img.toString('base64')}`) : []
   }));
-  res.json(listings);
-});
 
-app.get('/api/lease/listings/:id', async (req, res) => {
-  const result = await pool.query(
-    "SELECT * FROM lease_listings WHERE id = $1 AND is_published = true",
-    [req.params.id]
-  );
-  if (result.rows.length === 0) return res.status(404).json({ error: "Listing not found" });
-
-  const row = result.rows[0];
-  row.images = row.images ? row.images.map(img => `data:image/jpeg;base64,${img.toString('base64')}`) : [];
-  res.json(row);
+  res.json({ listings, total, page, totalPages: Math.ceil(total / limit) });
 });
 
 app.post('/preowned/lease', upload.array('images'), async (req, res) => {
