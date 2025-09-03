@@ -1,4 +1,5 @@
-const { Pool } = require('pg');
+rconst { Pool } = require('pg');
+const cors = require("cors");
 const express = require('express');
 const path = require('path');
 const nodemailer = require('nodemailer');
@@ -56,6 +57,13 @@ process.on("unhandledRejection", (reason) => {
 });
 
 const app = express();
+
+// Enable CORS so frontend (Netlify) can talk to backend (Render)
+const cors = require("cors");
+app.use(cors({
+  origin: "https://unitoolsmarketplace.netlify.app"  // your Netlify URL
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
