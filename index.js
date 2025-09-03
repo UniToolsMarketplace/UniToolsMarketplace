@@ -260,6 +260,35 @@ app.post('/verify-otp/lease', async (req, res) => {
   res.send(`<h1>Lease Listing Verified!</h1><a href="/preowned/rent">View listings</a>`);
 });
 
+// Get single SELL listing by ID
+app.get('/api/sell/listings/:id', async (req, res) => {
+  const { id } = req.params;
+  const result = await pool.query("SELECT * FROM sell_listings WHERE id = $1 AND is_published = true", [id]);
+
+  if (result.rows.length === 0) {
+    return res.status(404).send("Listing not found");
+  }
+
+  const listing = result.rows[0];
+  listing.images = listing.images ? listing.images.map(img => `data:image/jpeg;base64,${img.toString("base64")}`) : [];
+  res.json(listing);
+});
+
+// Get single LEASE listing by ID
+app.get('/api/lease/listings/:id', async (req, res) => {
+  const { id } = req.params;
+  const result = await pool.query("SELECT * FROM lease_listings WHERE id = $1 AND is_published = true", [id]);
+
+  if (result.rows.length === 0) {
+    return res.status(404).send("Listing not found");
+  }
+
+  const listing = result.rows[0];
+  listing.images = listing.images ? listing.images.map(img => `data:image/jpeg;base64,${img.toString("base64")}`) : [];
+  res.json(listing);
+});
+
+
 // ---------------- SERVER ----------------
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Server running on port ${port}`));
