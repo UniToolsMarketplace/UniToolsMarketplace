@@ -121,30 +121,70 @@ let listings = [];
 let currentPage = 1;
 let currentSort = "none";
 let currentSearch = "";
-const limit = 5;
+const limit = 5; // items per page
 
 async function fetchListings(page = 1, sort = currentSort, search = currentSearch) {
   const res = await fetch(`/api/lease/listings?page=${page}&limit=${limit}&sort=${sort}&search=${encodeURIComponent(search)}`);
   const data = await res.json();
+
   listings = data.listings;
   currentPage = data.page;
   renderListings(listings);
   renderPagination(data.page, data.totalPages);
 }
 
-function renderPagination(page, totalPages) {
+function renderListings(listings) {
+  const container = document.getElementById('listingsContainer');
+  container.innerHTML = ""; // clear before re-render
+
+  listings.forEach(listing => {
+    const card = document.createElement('div');
+    card.className = "listing-card";
+
+    const img = document.createElement('img');
+    img.src = listing.images && listing.images.length > 0 ? listing.images[0] : "/placeholder.png";
+
+    const info = document.createElement('div');
+    info.className = "listing-info";
+
+    const name = document.createElement('div');
+    name.className = "listing-name";
+    name.textContent = listing.item_name;
+
+    const price = document.createElement('div');
+    price.className = "listing-price";
+    price.textContent = listing.price ? `EGP ${listing.price}` : "N/A";
+
+    const desc = document.createElement('div');
+    desc.className = "listing-desc";
+    desc.textContent = listing.item_description || "";
+
+    info.appendChild(name);
+    info.appendChild(price);
+    info.appendChild(desc);
+
+    card.appendChild(img);
+    card.appendChild(info);
+
+    container.appendChild(card);
+  });
+}
+
+function renderPagination(current, totalPages) {
   const container = document.getElementById('listingsContainer');
   const nav = document.createElement('div');
-  nav.style.textAlign = 'center';
-  nav.style.marginTop = '20px';
+  nav.style.marginTop = "20px";
+  nav.style.textAlign = "center";
+
   for (let i = 1; i <= totalPages; i++) {
     const btn = document.createElement('button');
-    btn.textContent = i;
-    btn.disabled = (i === page);
-    btn.style.margin = '0 5px';
+    btn.innerText = i;
+    btn.style.margin = "0 5px";
+    btn.disabled = i === current;
     btn.onclick = () => fetchListings(i, currentSort, currentSearch);
     nav.appendChild(btn);
   }
+
   container.appendChild(nav);
 }
 
