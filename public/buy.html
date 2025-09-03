@@ -177,18 +177,43 @@ function renderListings(listings, page, totalPages) {
 }
 
 function renderPagination(current, totalPages) {
-  const container = document.getElementById("listingsContainer");
-  const nav = document.createElement("div");
+  const container = document.getElementById('listingsContainer');
+
+  // Remove old pagination
+  const oldNav = container.querySelector('.pagination-nav');
+  if (oldNav) oldNav.remove();
+
+  const nav = document.createElement('div');
+  nav.className = "pagination-nav";
   nav.style.marginTop = "20px";
   nav.style.textAlign = "center";
 
+  // Previous button
+  if (current > 1) {
+    const prevBtn = document.createElement('button');
+    prevBtn.innerText = "Previous";
+    prevBtn.style.margin = "0 5px";
+    prevBtn.onclick = () => fetchListings(current - 1, currentSort, currentSearch);
+    nav.appendChild(prevBtn);
+  }
+
+  // Page number buttons
   for (let i = 1; i <= totalPages; i++) {
-    const btn = document.createElement("button");
+    const btn = document.createElement('button');
     btn.innerText = i;
     btn.style.margin = "0 5px";
     btn.disabled = i === current;
     btn.onclick = () => fetchListings(i, currentSort, currentSearch);
     nav.appendChild(btn);
+  }
+
+  // Next button
+  if (current < totalPages) {
+    const nextBtn = document.createElement('button');
+    nextBtn.innerText = "Next";
+    nextBtn.style.margin = "0 5px";
+    nextBtn.onclick = () => fetchListings(current + 1, currentSort, currentSearch);
+    nav.appendChild(nextBtn);
   }
 
   container.appendChild(nav);
