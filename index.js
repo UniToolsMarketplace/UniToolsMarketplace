@@ -86,24 +86,36 @@ app.get('/faculties', (req, res) => res.sendFile(path.join(__dirname, 'public/fa
 app.get('/dentistry', (req, res) => res.sendFile(path.join(__dirname, 'public/dentistry.html')));
 app.get('/preowned', (req, res) => res.sendFile(path.join(__dirname, 'public/preowned.html')));
 
-// ---------------- SELL APIs with pagination ----------------
+// ---------------- SELL LISTINGS WITH PAGINATION, SORT, SEARCH ----------------
 app.get('/api/sell/listings', async (req, res) => {
-  let { page = 1, limit = 5 } = req.query;
+  let { page = 1, limit = 5, sort = "none", search = "" } = req.query;
   page = parseInt(page);
   limit = parseInt(limit);
   const offset = (page - 1) * limit;
 
-  const totalResult = await pool.query("SELECT COUNT(*) FROM sell_listings WHERE is_published = true");
+  let orderClause = "";
+  if (sort === "asc") orderClause = "ORDER BY price ASC";
+  else if (sort === "desc") orderClause = "ORDER BY price DESC";
+  else orderClause = "ORDER BY id DESC";
+
+  const searchQuery = `%${search.toLowerCase()}%`;
+
+  const totalResult = await pool.query(
+    "SELECT COUNT(*) FROM sell_listings WHERE is_published = true AND LOWER(item_name) LIKE $1",
+    [searchQuery]
+  );
   const total = parseInt(totalResult.rows[0].count);
 
   const result = await pool.query(
-    "SELECT * FROM sell_listings WHERE is_published = true ORDER BY id DESC LIMIT $1 OFFSET $2",
-    [limit, offset]
+    `SELECT * FROM sell_listings 
+     WHERE is_published = true AND LOWER(item_name) LIKE $1
+     ${orderClause} LIMIT $2 OFFSET $3`,
+    [searchQuery, limit, offset]
   );
 
   const listings = result.rows.map(l => ({
     ...l,
-    images: l.images ? l.images.map(img => `data:image/jpeg;base64,${img.toString('base64')}`) : []
+    images: l.images ? l.images.map(img => `data:image/jpeg;base64,${img.toString("base64")}`) : []
   }));
 
   res.json({ listings, total, page, totalPages: Math.ceil(total / limit) });
@@ -161,24 +173,36 @@ app.post('/verify-otp/sell', async (req, res) => {
   res.send(`<h1>Sell Listing Verified!</h1><a href="/preowned/buy">View listings</a>`);
 });
 
-// ---------------- LEASE APIs with pagination ----------------
+// ---------------- LEASE LISTINGS WITH PAGINATION, SORT, SEARCH ----------------
 app.get('/api/lease/listings', async (req, res) => {
-  let { page = 1, limit = 5 } = req.query;
+  let { page = 1, limit = 5, sort = "none", search = "" } = req.query;
   page = parseInt(page);
   limit = parseInt(limit);
   const offset = (page - 1) * limit;
 
-  const totalResult = await pool.query("SELECT COUNT(*) FROM lease_listings WHERE is_published = true");
+  let orderClause = "";
+  if (sort === "asc") orderClause = "ORDER BY price ASC";
+  else if (sort === "desc") orderClause = "ORDER BY price DESC";
+  else orderClause = "ORDER BY id DESC";
+
+  const searchQuery = `%${search.toLowerCase()}%`;
+
+  const totalResult = await pool.query(
+    "SELECT COUNT(*) FROM lease_listings WHERE is_published = true AND LOWER(item_name) LIKE $1",
+    [searchQuery]
+  );
   const total = parseInt(totalResult.rows[0].count);
 
   const result = await pool.query(
-    "SELECT * FROM lease_listings WHERE is_published = true ORDER BY id DESC LIMIT $1 OFFSET $2",
-    [limit, offset]
+    `SELECT * FROM lease_listings 
+     WHERE is_published = true AND LOWER(item_name) LIKE $1
+     ${orderClause} LIMIT $2 OFFSET $3`,
+    [searchQuery, limit, offset]
   );
 
   const listings = result.rows.map(l => ({
     ...l,
-    images: l.images ? l.images.map(img => `data:image/jpeg;base64,${img.toString('base64')}`) : []
+    images: l.images ? l.images.map(img => `data:image/jpeg;base64,${img.toString("base64")}`) : []
   }));
 
   res.json({ listings, total, page, totalPages: Math.ceil(total / limit) });

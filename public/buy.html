@@ -119,78 +119,43 @@
   <script>
 let listings = [];
 let currentPage = 1;
+let currentSort = "none";
+let currentSearch = "";
 const limit = 5;
 
-async function fetchListings(page = 1) {
-  const res = await fetch(`/api/sell/listings?page=${page}&limit=${limit}`);
+async function fetchListings(page = 1, sort = currentSort, search = currentSearch) {
+  const res = await fetch(`/api/sell/listings?page=${page}&limit=${limit}&sort=${sort}&search=${encodeURIComponent(search)}`);
   const data = await res.json();
   listings = data.listings;
+  currentPage = data.page;
   renderListings(listings);
   renderPagination(data.page, data.totalPages);
-}
-
-function renderListings(data) {
-  const container = document.getElementById('listingsContainer');
-  container.innerHTML = '';
-  if (data.length === 0) {
-    container.innerHTML = '<p>No listings found.</p>';
-    return;
-  }
-
-  data.forEach(l => {
-    const firstImage = l.images.length > 0 ? l.images[0] : 'placeholder.png';
-    const div = document.createElement('div');
-    div.className = 'listing-card';
-    div.onclick = () => { window.location.href = `/listing/${l.id}`; };
-    div.innerHTML = `
-      <img src="${firstImage}" alt="${l.item_name}" />
-      <div class="listing-info">
-        <div class="listing-name">${l.item_name}</div>
-        <div class="listing-price">${Number(l.price).toLocaleString('en-US',{style:'currency',currency:'EGP'})}</div>
-        <div class="listing-desc">${l.item_description || 'No description provided.'}</div>
-      </div>
-    `;
-    container.appendChild(div);
-  });
 }
 
 function renderPagination(page, totalPages) {
   const container = document.getElementById('listingsContainer');
   const nav = document.createElement('div');
-  nav.style.textAlign = "center";
-  nav.style.marginTop = "20px";
-
-  if (page > 1) {
-    const prevBtn = document.createElement('button');
-    prevBtn.textContent = "Previous";
-    prevBtn.onclick = () => fetchListings(page - 1);
-    nav.appendChild(prevBtn);
+  nav.style.textAlign = 'center';
+  nav.style.marginTop = '20px';
+  for (let i = 1; i <= totalPages; i++) {
+    const btn = document.createElement('button');
+    btn.textContent = i;
+    btn.disabled = (i === page);
+    btn.style.margin = '0 5px';
+    btn.onclick = () => fetchListings(i, currentSort, currentSearch);
+    nav.appendChild(btn);
   }
-
-  nav.append(` Page ${page} of ${totalPages} `);
-
-  if (page < totalPages) {
-    const nextBtn = document.createElement('button');
-    nextBtn.textContent = "Next";
-    nextBtn.onclick = () => fetchListings(page + 1);
-    nav.appendChild(nextBtn);
-  }
-
   container.appendChild(nav);
 }
 
-// search filter
 document.getElementById('searchInput').addEventListener('input', e => {
-  const searchTerm = e.target.value.toLowerCase();
-  renderListings(listings.filter(l => l.item_name.toLowerCase().includes(searchTerm)));
+  currentSearch = e.target.value.toLowerCase();
+  fetchListings(1, currentSort, currentSearch);
 });
 
-// sorting
 document.getElementById('sortSelect').addEventListener('change', e => {
-  let sorted = [...listings];
-  if (e.target.value === 'asc') { sorted.sort((a, b) => a.price - b.price); }
-  else if (e.target.value === 'desc') { sorted.sort((a, b) => b.price - a.price); }
-  renderListings(sorted);
+  currentSort = e.target.value;
+  fetchListings(1, currentSort, currentSearch);
 });
 
 fetchListings();
