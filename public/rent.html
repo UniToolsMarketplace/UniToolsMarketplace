@@ -140,6 +140,7 @@ function renderListings(listings) {
   listings.forEach(listing => {
     const card = document.createElement('div');
     card.className = "listing-card";
+    card.onclick = () => window.location.href = `/listing/${listing.id}`;
 
     const img = document.createElement('img');
     img.src = listing.images && listing.images.length > 0 ? listing.images[0] : "/placeholder.png";
