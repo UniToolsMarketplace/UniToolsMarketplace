@@ -129,34 +129,77 @@ async function fetchListings(page = 1, sort = currentSort, search = currentSearc
 
   listings = data.listings;
   currentPage = data.page;
-  renderListings(listings);
-  renderPagination(data.page, data.totalPages);
+  renderListings(listings, data.page, data.totalPages);
+}
+
+function renderListings(listings, page, totalPages) {
+  const container = document.getElementById("listingsContainer");
+  container.innerHTML = ""; // clear old content
+
+  if (!listings.length) {
+    container.innerHTML = "<p>No listings found.</p>";
+    return;
+  }
+
+  listings.forEach(l => {
+    const card = document.createElement("div");
+    card.className = "listing-card";
+    card.onclick = () => window.location.href = `/listing/${l.id}`;
+
+    const img = document.createElement("img");
+    img.src = l.images && l.images.length > 0 ? l.images[0] : "/placeholder.png";
+
+    const info = document.createElement("div");
+    info.className = "listing-info";
+
+    const name = document.createElement("div");
+    name.className = "listing-name";
+    name.textContent = l.item_name;
+
+    const price = document.createElement("div");
+    price.className = "listing-price";
+    price.textContent = l.price ? `${l.price} ${l.price_period || "EGP"}` : "N/A";
+
+    const desc = document.createElement("div");
+    desc.className = "listing-desc";
+    desc.textContent = l.item_description || "";
+
+    info.appendChild(name);
+    info.appendChild(price);
+    info.appendChild(desc);
+
+    card.appendChild(img);
+    card.appendChild(info);
+    container.appendChild(card);
+  });
+
+  renderPagination(page, totalPages);
 }
 
 function renderPagination(current, totalPages) {
-  const container = document.getElementById('listingsContainer');
-  const nav = document.createElement('div');
+  const container = document.getElementById("listingsContainer");
+  const nav = document.createElement("div");
   nav.style.marginTop = "20px";
   nav.style.textAlign = "center";
 
   for (let i = 1; i <= totalPages; i++) {
-    const btn = document.createElement('button');
+    const btn = document.createElement("button");
     btn.innerText = i;
     btn.style.margin = "0 5px";
     btn.disabled = i === current;
-    btn.onclick = () => fetchListings(i);
+    btn.onclick = () => fetchListings(i, currentSort, currentSearch);
     nav.appendChild(btn);
   }
 
   container.appendChild(nav);
 }
 
-document.getElementById('searchInput').addEventListener('input', e => {
+document.getElementById("searchInput").addEventListener("input", e => {
   currentSearch = e.target.value.toLowerCase();
   fetchListings(1, currentSort, currentSearch);
 });
 
-document.getElementById('sortSelect').addEventListener('change', e => {
+document.getElementById("sortSelect").addEventListener("change", e => {
   currentSort = e.target.value;
   fetchListings(1, currentSort, currentSearch);
 });
@@ -165,6 +208,7 @@ fetchListings();
   </script>
 </body>
 </html>
+
 
 <!DOCTYPE html>
 <html lang="en">
