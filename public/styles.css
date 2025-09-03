@@ -158,7 +158,7 @@ body {
 
 /* Ensure all card tiles in a row are equal height */
 .section-bottom {
-  gap: 20px; /* add spacing between multiple cards */
+  gap: 10px; /* add spacing between multiple cards */
 }
 
 .tile {
