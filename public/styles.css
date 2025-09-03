@@ -158,7 +158,7 @@ body {
 
 /* Ensure all card tiles in a row are equal height */
 .section-bottom {
-  gap: 10px; /* add spacing between multiple cards */
+  gap: 20px; /* add spacing between multiple cards */
 }
 
 .tile {
@@ -248,8 +248,8 @@ body {
 
 .compress-link {
   font-size: 0.9rem;
-  margin-top: -5px;
-  margin-bottom: 15px;
+  margin-top: 5px;
+  margin-bottom: 30px;
   color: #555;
 }
 
