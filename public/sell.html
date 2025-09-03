@@ -105,16 +105,18 @@
         <label>Price (EGP)</label>
         <input name="price" type="number" min="0" step="0.01" required />
 
-        <label for="images">Upload Images (max total 200KB):</label>
-        <input type="file" id="images" name="images" multiple accept="image/*" />
-        <p style="font-size: 0.9rem; color: #555;">
-          Having trouble uploading? 
-          <a href="https://www.iloveimg.com/compress-image" target="_blank" style="color: var(--primary); text-decoration: underline;">
-           Click here to compress
-          </a>
-        </p>
+<div class="form-group">
+  <label for="images">Upload Images (max total 200KB):</label>
+  <input type="file" id="images" name="images" multiple accept="image/*" />
 
-        <small class="note">After submitting you'll receive an OTP email. Confirm to publish.</small>
+  <p class="compress-link">
+    Having trouble uploading? 
+    <a href="https://tinypng.com/" target="_blank">Click here to compress</a>
+  </p>
+</div>
+
+<p class="otp-note">After submitting you’ll receive an OTP email. Confirm to publish.</p>
+
 
         <button type="submit">Submit & Send OTP</button>
       </form>

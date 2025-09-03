@@ -246,6 +246,25 @@ body {
   font-weight: bold;
 }
 
+.compress-link {
+  font-size: 0.9rem;
+  margin-top: 8px;
+  margin-bottom: 15px;
+  color: #555;
+}
+
+.compress-link a {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.otp-note {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 15px;
+  display: block;
+}
+
 /* ===========================
    PHONES & TABLETS STYLES
    =========================== */
