@@ -113,10 +113,17 @@
           <option value="month">Per Month</option>
         </select>
 
-        <label>Upload Images</label>
-        <input name="images" type="file" accept="image/*" multiple />
+<div class="form-group">
+  <label for="images">Upload Images (max total 200KB):</label>
+  <input type="file" id="images" name="images" multiple accept="image/*" />
+  <p class="compress-link">
+    Having trouble uploading? 
+    <a href="https://tinypng.com/" target="_blank">Click here to compress</a>
+  </p>
+</div>
 
-        <small class="note">After submitting you'll receive an OTP email. Confirm to publish your lease listing.</small>
+<p class="otp-note">After submitting you’ll receive an OTP email. Confirm to publish.</p>
+
 
         <button type="submit">Submit & Send OTP</button>
       </form>
