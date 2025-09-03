@@ -121,30 +121,33 @@ let listings = [];
 let currentPage = 1;
 let currentSort = "none";
 let currentSearch = "";
-const limit = 5;
+const limit = 5; // items per page
 
 async function fetchListings(page = 1, sort = currentSort, search = currentSearch) {
   const res = await fetch(`/api/sell/listings?page=${page}&limit=${limit}&sort=${sort}&search=${encodeURIComponent(search)}`);
   const data = await res.json();
+
   listings = data.listings;
   currentPage = data.page;
   renderListings(listings);
   renderPagination(data.page, data.totalPages);
 }
 
-function renderPagination(page, totalPages) {
+function renderPagination(current, totalPages) {
   const container = document.getElementById('listingsContainer');
   const nav = document.createElement('div');
-  nav.style.textAlign = 'center';
-  nav.style.marginTop = '20px';
+  nav.style.marginTop = "20px";
+  nav.style.textAlign = "center";
+
   for (let i = 1; i <= totalPages; i++) {
     const btn = document.createElement('button');
-    btn.textContent = i;
-    btn.disabled = (i === page);
-    btn.style.margin = '0 5px';
-    btn.onclick = () => fetchListings(i, currentSort, currentSearch);
+    btn.innerText = i;
+    btn.style.margin = "0 5px";
+    btn.disabled = i === current;
+    btn.onclick = () => fetchListings(i);
     nav.appendChild(btn);
   }
+
   container.appendChild(nav);
 }
 
