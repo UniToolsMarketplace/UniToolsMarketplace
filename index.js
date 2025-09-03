@@ -126,9 +126,9 @@ app.post('/preowned/sell', upload.array('images'), async (req, res) => {
   if (!email || !email.endsWith('@bue.edu.eg')) return res.status(400).send('Email must be @bue.edu.eg domain');
   if (!item_name || !price) return res.status(400).send('Missing required fields');
 
-  // size check
+  // size check (200 KB total)
   const totalSize = req.files.reduce((sum, f) => sum + f.size, 0);
-  if (totalSize > 5 * 1024 * 1024) return res.status(400).send("Total image size cannot exceed 5MB");
+  if (totalSize > 200 * 1024) return res.status(400).send("Total image size cannot exceed 200KB. Please compress your images.");
 
   const id = uuidv4();
   const otp = Math.floor(100000 + Math.random()*900000).toString();
