@@ -132,14 +132,27 @@ async function fetchListings(page = 1, sort = currentSort, search = currentSearc
   renderListings(listings, data.page, data.totalPages);
 }
 
-function renderListings(listings, page, totalPages) {
+function renderListings(listings) {
   const container = document.getElementById("listingsContainer");
-  container.innerHTML = ""; // clear old content
+  container.innerHTML = "";
 
-  if (!listings.length) {
-    container.innerHTML = "<p>No listings found.</p>";
-    return;
-  }
+  listings.forEach(listing => {
+    const card = document.createElement("div");
+    card.className = "listing-card";
+    card.innerHTML = `
+      <a href="/listing/${listing.id}" style="text-decoration:none;color:inherit;display:flex;align-items:flex-start;width:100%;">
+        <img src="${listing.images && listing.images[0] ? listing.images[0] : '/placeholder.png'}" alt="${listing.item_name}" />
+        <div class="listing-info">
+          <div class="listing-name">${listing.item_name}</div>
+          <div class="listing-price">EGP ${listing.price}</div>
+          <div class="listing-desc">${listing.item_description || ""}</div>
+        </div>
+      </a>
+    `;
+    container.appendChild(card);
+  });
+}
+
 
   listings.forEach(l => {
     const card = document.createElement("div");
