@@ -102,7 +102,7 @@ app.post('/preowned/sell', upload.array('images'), async (req, res) => {
     item_description,
     price: parseFloat(price),
     price_period,
-    images: imageBuffers,
+    images: imageBuffers.map(buf => buf.toString("base64")), // store as base64
     is_published: false
   });
 
@@ -184,7 +184,7 @@ app.post('/preowned/lease', upload.array('images'), async (req, res) => {
     item_description,
     price: parseFloat(price),
     price_period,
-    images: imageBuffers,
+    images: imageBuffers.map(buf => buf.toString("base64")), // store as base64
     is_published: false
   });
 
