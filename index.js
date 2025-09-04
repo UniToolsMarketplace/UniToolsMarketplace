@@ -7,11 +7,13 @@ const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 require('dotenv').config();
 
-// ---------------- APP SETUP ----------------
+// ---------------- SERVER CONFIG ----------------
+const port = process.env.PORT || 3000;
+const app = express();
+
 process.on("uncaughtException", (err) => console.error("[UNCAUGHT EXCEPTION]", err));
 process.on("unhandledRejection", (reason) => console.error("[UNHANDLED REJECTION]", reason));
 
-const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -28,7 +30,7 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// OTP store
+// OTP store (temporary in-memory)
 const otpStore = {};
 
 // ---------------- ROUTES ----------------
@@ -51,12 +53,12 @@ app.get('/api/sell/listings', async (req, res) => {
   let order = [];
   if (sort === "asc") order.push({ price: "asc" });
   else if (sort === "desc") order.push({ price: "desc" });
-  else order.push({ xata_createdat: "desc" });
+  else order.push({ "xata.createdAt": "desc" });
 
   const listingsResult = await xata.db.sell_listings
     .filter({
       is_published: true,
-      ...(search ? { item_name: { $text: search } } : {})
+      ...(search ? { item_name: { $contains: search } } : {})
     })
     .sort(order)
     .getPaginated({ pagination: { size: limit, offset: (page - 1) * limit } });
@@ -66,7 +68,12 @@ app.get('/api/sell/listings', async (req, res) => {
     images: l.images || []
   }));
 
-  res.json({ listings, total: listingsResult.totalCount, page, totalPages: Math.ceil(listingsResult.totalCount / limit) });
+  res.json({
+    listings,
+    total: listingsResult.totalCount,
+    page,
+    totalPages: Math.ceil(listingsResult.totalCount / limit)
+  });
 });
 
 app.post('/preowned/sell', upload.array('images'), async (req, res) => {
@@ -138,12 +145,12 @@ app.get('/api/lease/listings', async (req, res) => {
   let order = [];
   if (sort === "asc") order.push({ price: "asc" });
   else if (sort === "desc") order.push({ price: "desc" });
-  else order.push({ xata_createdat: "desc" });
+  else order.push({ "xata.createdAt": "desc" });
 
   const listingsResult = await xata.db.lease_listings
     .filter({
       is_published: true,
-      ...(search ? { item_name: { $text: search } } : {})
+      ...(search ? { item_name: { $contains: search } } : {})
     })
     .sort(order)
     .getPaginated({ pagination: { size: limit, offset: (page - 1) * limit } });
@@ -153,7 +160,12 @@ app.get('/api/lease/listings', async (req, res) => {
     images: l.images || []
   }));
 
-  res.json({ listings, total: listingsResult.totalCount, page, totalPages: Math.ceil(listingsResult.totalCount / limit) });
+  res.json({
+    listings,
+    total: listingsResult.totalCount,
+    page,
+    totalPages: Math.ceil(listingsResult.totalCount / limit)
+  });
 });
 
 app.post('/preowned/lease', upload.array('images'), async (req, res) => {
@@ -216,6 +228,5 @@ app.post('/verify-otp/lease', async (req, res) => {
   res.send(`<h1>Lease Listing Verified!</h1><a href="/preowned/rent">View listings</a>`);
 });
 
-// ---------------- SERVER ----------------
-const port = process.env.PORT || 3000;
+// ---------------- START SERVER ----------------
 app.listen(port, () => console.log(`Server running on port ${port}`));
