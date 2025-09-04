@@ -8,19 +8,15 @@ const { v4: uuidv4 } = require('uuid');
 require('dotenv').config();
 
 // ---------------- APP SETUP ----------------
-process.on("uncaughtException", (err) => {
-  console.error("[UNCAUGHT EXCEPTION]", err);
-});
-process.on("unhandledRejection", (reason) => {
-  console.error("[UNHANDLED REJECTION]", reason);
-});
+process.on("uncaughtException", (err) => console.error("[UNCAUGHT EXCEPTION]", err));
+process.on("unhandledRejection", (reason) => console.error("[UNHANDLED REJECTION]", reason));
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Multer: store files in memory (not disk)
+// Multer: store files in memory
 const upload = multer({ storage: multer.memoryStorage() });
 
 // Nodemailer
@@ -46,7 +42,7 @@ app.get('/faculties', (req, res) => res.sendFile(path.join(__dirname, 'public/fa
 app.get('/dentistry', (req, res) => res.sendFile(path.join(__dirname, 'public/dentistry.html')));
 app.get('/preowned', (req, res) => res.sendFile(path.join(__dirname, 'public/preowned.html')));
 
-// ---------------- SELL LISTINGS WITH PAGINATION, SORT, SEARCH ----------------
+// ---------------- SELL LISTINGS ----------------
 app.get('/api/sell/listings', async (req, res) => {
   let { page = 1, limit = 5, sort = "none", search = "" } = req.query;
   page = parseInt(page);
@@ -55,19 +51,19 @@ app.get('/api/sell/listings', async (req, res) => {
   let order = [];
   if (sort === "asc") order.push({ price: "asc" });
   else if (sort === "desc") order.push({ price: "desc" });
-  else order.push({ id: "desc" });
+  else order.push({ xata_createdat: "desc" });
 
   const listingsResult = await xata.db.sell_listings
-    .filter({ 
+    .filter({
       is_published: true,
-      item_name: { $contains: search.toLowerCase() }
+      ...(search ? { item_name: { $text: search } } : {})
     })
     .sort(order)
     .getPaginated({ pagination: { size: limit, offset: (page - 1) * limit } });
 
   const listings = listingsResult.records.map(l => ({
     ...l,
-    images: l.images ? l.images.map(img => img.base64) : []
+    images: l.images || []
   }));
 
   res.json({ listings, total: listingsResult.totalCount, page, totalPages: Math.ceil(listingsResult.totalCount / limit) });
@@ -86,11 +82,7 @@ app.post('/preowned/sell', upload.array('images'), async (req, res) => {
   const otp = Math.floor(100000 + Math.random()*900000).toString();
   otpStore[email] = { otp, listingId: id, type: "sell" };
 
-  const imageBuffers = req.files.map(f => ({
-    name: f.originalname,
-    mediaType: f.mimetype,
-    base64Content: f.buffer.toString("base64")
-  }));
+  const images = req.files.map(f => `data:${f.mimetype};base64,${f.buffer.toString("base64")}`);
 
   await xata.db.sell_listings.create({
     id,
@@ -102,7 +94,7 @@ app.post('/preowned/sell', upload.array('images'), async (req, res) => {
     item_description,
     price: parseFloat(price),
     price_period,
-    images: imageBuffers.map(buf => buf.toString("base64")), // store as base64
+    images,
     is_published: false
   });
 
@@ -117,6 +109,15 @@ app.post('/preowned/sell', upload.array('images'), async (req, res) => {
   res.send(`<h1>OTP sent to your email!</h1><a href="${verifyUrl}">Verify here</a>`);
 });
 
+app.get('/verify-otp/sell', (req, res) => {
+  res.send(`<form action="/verify-otp/sell" method="POST">
+    <input type="hidden" name="id" value="${req.query.id}" />
+    <input type="hidden" name="email" value="${req.query.email}" />
+    <label>Enter OTP:</label><input name="otp" required />
+    <button type="submit">Verify</button>
+  </form>`);
+});
+
 app.post('/verify-otp/sell', async (req, res) => {
   const { id, email, otp } = req.body;
   const otpData = otpStore[email];
@@ -128,7 +129,7 @@ app.post('/verify-otp/sell', async (req, res) => {
   res.send(`<h1>Sell Listing Verified!</h1><a href="/preowned/buy">View listings</a>`);
 });
 
-// ---------------- LEASE LISTINGS WITH PAGINATION, SORT, SEARCH ----------------
+// ---------------- LEASE LISTINGS ----------------
 app.get('/api/lease/listings', async (req, res) => {
   let { page = 1, limit = 5, sort = "none", search = "" } = req.query;
   page = parseInt(page);
@@ -137,19 +138,19 @@ app.get('/api/lease/listings', async (req, res) => {
   let order = [];
   if (sort === "asc") order.push({ price: "asc" });
   else if (sort === "desc") order.push({ price: "desc" });
-  else order.push({ id: "desc" });
+  else order.push({ xata_createdat: "desc" });
 
   const listingsResult = await xata.db.lease_listings
-    .filter({ 
+    .filter({
       is_published: true,
-      item_name: { $contains: search.toLowerCase() }
+      ...(search ? { item_name: { $text: search } } : {})
     })
     .sort(order)
     .getPaginated({ pagination: { size: limit, offset: (page - 1) * limit } });
 
   const listings = listingsResult.records.map(l => ({
     ...l,
-    images: l.images ? l.images.map(img => img.base64) : []
+    images: l.images || []
   }));
 
   res.json({ listings, total: listingsResult.totalCount, page, totalPages: Math.ceil(listingsResult.totalCount / limit) });
@@ -168,11 +169,7 @@ app.post('/preowned/lease', upload.array('images'), async (req, res) => {
   const otp = Math.floor(100000 + Math.random()*900000).toString();
   otpStore[email] = { otp, listingId: id, type: "lease" };
 
-  const imageBuffers = req.files.map(f => ({
-    name: f.originalname,
-    mediaType: f.mimetype,
-    base64Content: f.buffer.toString("base64")
-  }));
+  const images = req.files.map(f => `data:${f.mimetype};base64,${f.buffer.toString("base64")}`);
 
   await xata.db.lease_listings.create({
     id,
@@ -184,7 +181,7 @@ app.post('/preowned/lease', upload.array('images'), async (req, res) => {
     item_description,
     price: parseFloat(price),
     price_period,
-    images: imageBuffers.map(buf => buf.toString("base64")), // store as base64
+    images,
     is_published: false
   });
 
@@ -197,6 +194,15 @@ app.post('/preowned/lease', upload.array('images'), async (req, res) => {
     html: `<p>Your OTP: <b>${otp}</b></p><p>Verify: <a href="${verifyUrl}">${verifyUrl}</a></p>`
   }, () => {});
   res.send(`<h1>OTP sent to your email!</h1><a href="${verifyUrl}">Verify here</a>`);
+});
+
+app.get('/verify-otp/lease', (req, res) => {
+  res.send(`<form action="/verify-otp/lease" method="POST">
+    <input type="hidden" name="id" value="${req.query.id}" />
+    <input type="hidden" name="email" value="${req.query.email}" />
+    <label>Enter OTP:</label><input name="otp" required />
+    <button type="submit">Verify</button>
+  </form>`);
 });
 
 app.post('/verify-otp/lease', async (req, res) => {
