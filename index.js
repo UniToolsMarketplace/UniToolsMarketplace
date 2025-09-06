@@ -87,10 +87,11 @@ app.get("/api/sell/listings", async (req, res) => {
     sortOrder = "desc";
   }
 
-  const filter = {
-    is_published: true,
-    item_name: { $contains: search },
-  };
+  let filter = { is_published: true };
+
+if (search && search.trim() !== "") {
+  filter.item_name = { $contains: search };
+}
 
   const result = await xata.db.sell_listings
     .filter(filter)
@@ -218,10 +219,11 @@ app.get("/api/lease/listings", async (req, res) => {
     sortOrder = "desc";
   }
 
-  const filter = {
-    is_published: true,
-    item_name: { $contains: search },
-  };
+  let filter = { is_published: true };
+
+if (search && search.trim() !== "") {
+  filter.item_name = { $contains: search };
+}
 
   const result = await xata.db.lease_listings
     .filter(filter)
