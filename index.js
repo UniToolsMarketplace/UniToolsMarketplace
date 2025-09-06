@@ -76,9 +76,15 @@ app.get("/api/sell/listings", async (req, res) => {
   limit = parseInt(limit);
 
   let orderBy;
-  if (sort === "asc") orderBy = { price: "asc" };
-  else if (sort === "desc") orderBy = { price: "desc" };
-  else orderBy = { xata: { createdAt: "desc" } };
+
+    if (sort === "price_asc") {
+      orderBy = [{ column: "price", order: "asc" }];
+    } else if (sort === "price_desc") {
+      orderBy = [{ column: "price", order: "desc" }];
+    } else {
+      // default: newest first
+      orderBy = [{ column: "xata.createdAt", order: "desc" }];
+    }
 
   const filter = {
     is_published: true,
@@ -201,9 +207,15 @@ app.get("/api/lease/listings", async (req, res) => {
   limit = parseInt(limit);
 
   let orderBy;
-  if (sort === "asc") orderBy = { price: "asc" };
-  else if (sort === "desc") orderBy = { price: "desc" };
-  else orderBy = { xata: { createdAt: "desc" } };
+
+    if (sort === "price_asc") {
+      orderBy = [{ column: "price", order: "asc" }];
+    } else if (sort === "price_desc") {
+      orderBy = [{ column: "price", order: "desc" }];
+    } else {
+      // default: newest first
+      orderBy = [{ column: "xata.createdAt", order: "desc" }];
+    }
 
   const filter = {
     is_published: true,
