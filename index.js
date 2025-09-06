@@ -75,16 +75,17 @@ app.get("/api/sell/listings", async (req, res) => {
   page = parseInt(page);
   limit = parseInt(limit);
 
+  // Default sorting: newest first
   let sortColumn = "xata.createdAt";
-let sortOrder = "desc"; // default: newest first
+  let sortOrder = "desc";
 
-if (sort === "price_asc") {
-  sortColumn = "price";
-  sortOrder = "asc";
-} else if (sort === "price_desc") {
-  sortColumn = "price";
-  sortOrder = "desc";
-}
+  if (sort === "price_asc") {
+    sortColumn = "price";
+    sortOrder = "asc";
+  } else if (sort === "price_desc") {
+    sortColumn = "price";
+    sortOrder = "desc";
+  }
 
   const filter = {
     is_published: true,
@@ -93,7 +94,7 @@ if (sort === "price_asc") {
 
   const result = await xata.db.sell_listings
     .filter(filter)
-    .sort(orderBy)
+    .sort(sortColumn, sortOrder) // ✅ FIXED
     .getPaginated({
       pagination: { size: limit, offset: (page - 1) * limit },
     });
@@ -207,15 +208,15 @@ app.get("/api/lease/listings", async (req, res) => {
   limit = parseInt(limit);
 
   let sortColumn = "xata.createdAt";
-let sortOrder = "desc"; // default: newest first
+  let sortOrder = "desc";
 
-if (sort === "price_asc") {
-  sortColumn = "price";
-  sortOrder = "asc";
-} else if (sort === "price_desc") {
-  sortColumn = "price";
-  sortOrder = "desc";
-}
+  if (sort === "price_asc") {
+    sortColumn = "price";
+    sortOrder = "asc";
+  } else if (sort === "price_desc") {
+    sortColumn = "price";
+    sortOrder = "desc";
+  }
 
   const filter = {
     is_published: true,
@@ -224,7 +225,7 @@ if (sort === "price_asc") {
 
   const result = await xata.db.lease_listings
     .filter(filter)
-    .sort(orderBy)
+    .sort(sortColumn, sortOrder) // ✅ FIXED
     .getPaginated({
       pagination: { size: limit, offset: (page - 1) * limit },
     });
