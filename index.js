@@ -137,30 +137,30 @@ app.post('/preowned/sell', upload.array('images'), async (req, res) => {
   otpStore[email] = { otp, listingId: id, type: "sell" };
 
   // ✅ Upload images using xata.files.upload
-const uploadedImages = await Promise.all(
-  req.files.map((file) =>
-    xata.files.upload(file.buffer, {
-      name: file.originalname,
-      mediaType: file.mimetype,
-      table: "sell_listings",   // ✅ table name
-      column: "images"          // ✅ file[] column
-    })
-  )
-);
+const record = await xata.db.sell_listings.create({
+  // same fields...
+  images: req.files.map((file) => ({
+    name: file.originalname,
+    mediaType: file.mimetype,
+    base64Content: file.buffer.toString("base64"),
+  })),
+});
 
-  await xata.db.sell_listings.create({
-    id,
-    seller_name,
-    email,
-    contact_number,
-    whatsapp_number,
-    item_name,
-    item_description,
-    price: parseFloat(price),
-    price_period,
-    images: uploadedImages, // store file references
-    is_published: false,
-  });
+const record = await xata.db.sell_listings.create({
+  seller_name: req.body.seller_name,
+  email: req.body.email,
+  contact_number: req.body.contact_number,
+  whatsapp_number: req.body.whatsapp_number,
+  item_name: req.body.item_name,
+  item_description: req.body.item_description,
+  price: req.body.price,
+  images: req.files.map((file) => ({
+    name: file.originalname,
+    mediaType: file.mimetype,
+    base64Content: file.buffer.toString("base64"),
+  })),
+});
+
 
   const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
   const verifyUrl = `${baseUrl}/verify-otp/sell?id=${id}&email=${encodeURIComponent(
@@ -266,30 +266,30 @@ app.post("/preowned/lease", upload.array("images"), async (req, res) => {
   otpStore[email] = { otp, listingId: id, type: "lease" };
 
   // ✅ Upload images using xata.files.upload
-const uploadedImages = await Promise.all(
-  req.files.map((file) =>
-    xata.files.upload(file.buffer, {
-      name: file.originalname,
-      mediaType: file.mimetype,
-      table: "lease_listings",  // ✅ lease table
-      column: "images"          // ✅ file[] column
-    })
-  )
-);
+const record = await xata.db.lease_listings.create({
+  // same fields...
+  images: req.files.map((file) => ({
+    name: file.originalname,
+    mediaType: file.mimetype,
+    base64Content: file.buffer.toString("base64"),
+  })),
+});
 
-  await xata.db.lease_listings.create({
-    id,
-    seller_name,
-    email,
-    contact_number,
-    whatsapp_number,
-    item_name,
-    item_description,
-    price: parseFloat(price),
-    price_period,
-    images: uploadedImages,
-    is_published: false,
-  });
+const record = await xata.db.lease_listings.create({
+  seller_name: req.body.seller_name,
+  email: req.body.email,
+  contact_number: req.body.contact_number,
+  whatsapp_number: req.body.whatsapp_number,
+  item_name: req.body.item_name,
+  item_description: req.body.item_description,
+  price: req.body.price,
+  images: req.files.map((file) => ({
+    name: file.originalname,
+    mediaType: file.mimetype,
+    base64Content: file.buffer.toString("base64"),
+  })),
+});
+
 
   const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
   const verifyUrl = `${baseUrl}/verify-otp/lease?id=${id}&email=${encodeURIComponent(
