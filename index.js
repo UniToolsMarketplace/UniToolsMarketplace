@@ -136,15 +136,17 @@ app.post("/preowned/sell", upload.array("images"), async (req, res) => {
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   otpStore[email] = { otp, listingId: id, type: "sell" };
 
-  // Upload images to Xata (✅ fixed with table name)
-  const uploadedImages = await Promise.all(
-    req.files.map((file) =>
-      xata.files.upload("sell_listings", file.buffer, {
-        name: file.originalname,
-        mediaType: file.mimetype,
-      })
-    )
-  );
+// Upload images to Xata (sell_listings.images)
+const uploadedImages = await Promise.all(
+  req.files.map(async (file) =>
+    await xata.files.upload(file.buffer, {
+      name: file.originalname,
+      mediaType: file.mimetype,
+      table: "sell_listings",
+      column: "images",
+    })
+  )
+);
 
   await xata.db.sell_listings.create({
     id,
@@ -238,15 +240,17 @@ app.post("/preowned/lease", upload.array("images"), async (req, res) => {
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   otpStore[email] = { otp, listingId: id, type: "lease" };
 
-  // Upload images to Xata (✅ fixed with table name)
-  const uploadedImages = await Promise.all(
-    req.files.map((file) =>
-      xata.files.upload("lease_listings", file.buffer, {
-        name: file.originalname,
-        mediaType: file.mimetype,
-      })
-    )
-  );
+// Upload images to Xata (lease_listings.images)
+const uploadedImages = await Promise.all(
+  req.files.map(async (file) =>
+    await xata.files.upload(file.buffer, {
+      name: file.originalname,
+      mediaType: file.mimetype,
+      table: "lease_listings",
+      column: "images",
+    })
+  )
+);
 
   await xata.db.lease_listings.create({
     id,
