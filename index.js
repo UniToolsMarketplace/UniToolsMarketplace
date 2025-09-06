@@ -144,7 +144,7 @@ const record = await xata.db.sell_listings.create({
   whatsapp_number: req.body.whatsapp_number,
   item_name: req.body.item_name,
   item_description: req.body.item_description,
-  price: req.body.price,
+  price: parseFloat(req.body.price) || 0,
   images: req.files.map((file) => ({
     name: file.originalname,
     mediaType: file.mimetype,
@@ -264,7 +264,7 @@ const record = await xata.db.lease_listings.create({
   whatsapp_number: req.body.whatsapp_number,
   item_name: req.body.item_name,
   item_description: req.body.item_description,
-  price: req.body.price,
+  price: parseFloat(req.body.price) || 0,
   images: req.files.map((file) => ({
     name: file.originalname,
     mediaType: file.mimetype,
