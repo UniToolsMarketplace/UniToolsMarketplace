@@ -136,15 +136,6 @@ app.post('/preowned/sell', upload.array('images'), async (req, res) => {
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   otpStore[email] = { otp, listingId: id, type: "sell" };
 
-  // ✅ Upload images using xata.files.upload
-const record = await xata.db.sell_listings.create({
-  // same fields...
-  images: req.files.map((file) => ({
-    name: file.originalname,
-    mediaType: file.mimetype,
-    base64Content: file.buffer.toString("base64"),
-  })),
-});
 
 const record = await xata.db.sell_listings.create({
   seller_name: req.body.seller_name,
@@ -265,15 +256,6 @@ app.post("/preowned/lease", upload.array("images"), async (req, res) => {
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   otpStore[email] = { otp, listingId: id, type: "lease" };
 
-  // ✅ Upload images using xata.files.upload
-const record = await xata.db.lease_listings.create({
-  // same fields...
-  images: req.files.map((file) => ({
-    name: file.originalname,
-    mediaType: file.mimetype,
-    base64Content: file.buffer.toString("base64"),
-  })),
-});
 
 const record = await xata.db.lease_listings.create({
   seller_name: req.body.seller_name,
