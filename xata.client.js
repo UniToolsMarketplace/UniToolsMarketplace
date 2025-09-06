@@ -269,6 +269,7 @@ const tables = [
 const DatabaseClient = (0, client_1.buildClient)();
 const defaultOptions = {
   databaseURL:
+    process.env.XATA_DATABASE_URL ||
     "https://UniToolsMarketplace-s-workspace-35jkgh.eu-central-1.xata.sh/db/unitools_db:main",
 };
 /** @typedef { import('./types').DatabaseSchema } DatabaseSchema */
