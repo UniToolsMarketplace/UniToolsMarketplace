@@ -141,7 +141,7 @@ app.post("/verify-otp/sell", async (req, res) => {
     return res.status(400).send("Invalid OTP");
   }
 
-  await xata.db.sell_listings.update(id, { is_published: true });
+  await xata.db.sell_listings.update(id, { is_published: false });
   delete otpStore[id];
 
   res.send(`<h1>Sell Listing Verified!</h1><a href="/preowned/buy">View listings</a>`);
