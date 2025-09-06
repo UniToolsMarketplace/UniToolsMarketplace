@@ -141,23 +141,23 @@ app.post('/preowned/sell', upload.array('images'), async (req, res) => {
       .send("Total image size cannot exceed 200KB. Please compress your images.");
 
   const id = uuidv4();
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  otpStore[email] = { otp, listingId: id, type: "sell" };
+const otp = Math.floor(100000 + Math.random() * 900000).toString();
+otpStore[email] = { otp, listingId: id, type: "sell" };
 
-
-const record = await xata.db.sell_listings.create({
-  seller_name: req.body.seller_name,
-  email: req.body.email,
-  contact_number: req.body.contact_number,
-  whatsapp_number: req.body.whatsapp_number,
-  item_name: req.body.item_name,
-  item_description: req.body.item_description,
-  price: parseFloat(req.body.price) || 0,
+const record = await xata.db.sell_listings.create(id, {   // 👈 pass id here
+  seller_name,
+  email,
+  contact_number,
+  whatsapp_number,
+  item_name,
+  item_description,
+  price: parseFloat(price) || 0,
   images: req.files.map((file) => ({
     name: file.originalname,
     mediaType: file.mimetype,
     base64Content: file.buffer.toString("base64"),
   })),
+  is_published: false, // 👈 start unpublished
 });
 
 
@@ -272,19 +272,20 @@ app.post("/preowned/lease", upload.array("images"), async (req, res) => {
   otpStore[email] = { otp, listingId: id, type: "lease" };
 
 
-const record = await xata.db.lease_listings.create({
-  seller_name: req.body.seller_name,
-  email: req.body.email,
-  contact_number: req.body.contact_number,
-  whatsapp_number: req.body.whatsapp_number,
-  item_name: req.body.item_name,
-  item_description: req.body.item_description,
-  price: parseFloat(req.body.price) || 0,
+const record = await xata.db.lease_listings.create(id, {   // 👈 pass id
+  seller_name,
+  email,
+  contact_number,
+  whatsapp_number,
+  item_name,
+  item_description,
+  price: parseFloat(price) || 0,
   images: req.files.map((file) => ({
     name: file.originalname,
     mediaType: file.mimetype,
     base64Content: file.buffer.toString("base64"),
   })),
+  is_published: false,
 });
 
 
