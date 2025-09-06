@@ -140,11 +140,7 @@ app.post('/preowned/sell', upload.array('images'), async (req, res) => {
       .status(400)
       .send("Total image size cannot exceed 200KB. Please compress your images.");
 
-  const id = uuidv4();
-const otp = Math.floor(100000 + Math.random() * 900000).toString();
-otpStore[email] = { otp, listingId: id, type: "sell" };
-
-const record = await xata.db.sell_listings.create(id, {   // 👈 pass id here
+const record = await xata.db.sell_listings.create({
   seller_name,
   email,
   contact_number,
@@ -157,14 +153,15 @@ const record = await xata.db.sell_listings.create(id, {   // 👈 pass id here
     mediaType: file.mimetype,
     base64Content: file.buffer.toString("base64"),
   })),
-  is_published: false, // 👈 start unpublished
+  is_published: false, // start unpublished
 });
 
+// Use record.xata_id for OTP store
+const otp = Math.floor(100000 + Math.random() * 900000).toString();
+otpStore[email] = { otp, listingId: record.xata_id, type: "sell" };
 
-  const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
-  const verifyUrl = `${baseUrl}/verify-otp/sell?id=${id}&email=${encodeURIComponent(
-    email
-  )}`;
+const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
+const verifyUrl = `${baseUrl}/verify-otp/sell?id=${record.xata_id}&email=${encodeURIComponent(email)}`;
   transporter.sendMail(
     {
       from: process.env.EMAIL_USER,
@@ -267,12 +264,7 @@ app.post("/preowned/lease", upload.array("images"), async (req, res) => {
   if (totalSize > 5 * 1024 * 1024)
     return res.status(400).send("Total image size cannot exceed 5MB");
 
-  const id = uuidv4();
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  otpStore[email] = { otp, listingId: id, type: "lease" };
-
-
-const record = await xata.db.lease_listings.create(id, {   // 👈 pass id
+const record = await xata.db.lease_listings.create({
   seller_name,
   email,
   contact_number,
@@ -285,14 +277,15 @@ const record = await xata.db.lease_listings.create(id, {   // 👈 pass id
     mediaType: file.mimetype,
     base64Content: file.buffer.toString("base64"),
   })),
-  is_published: false,
+  is_published: false, // start unpublished
 });
 
+// Use record.xata_id for OTP store
+const otp = Math.floor(100000 + Math.random() * 900000).toString();
+otpStore[email] = { otp, listingId: record.xata_id, type: "sell" };
 
-  const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
-  const verifyUrl = `${baseUrl}/verify-otp/lease?id=${id}&email=${encodeURIComponent(
-    email
-  )}`;
+const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
+const verifyUrl = `${baseUrl}/verify-otp/sell?id=${record.xata_id}&email=${encodeURIComponent(email)}`;
   transporter.sendMail(
     {
       from: process.env.EMAIL_USER,
