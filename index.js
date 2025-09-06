@@ -70,49 +70,6 @@ app.get("/preowned", (req, res) =>
 );
 
 // ---------------- SELL LISTINGS WITH PAGINATION, SORT, SEARCH ----------------
-app.get("/api/sell/listings", async (req, res) => {
-  let { page = 1, limit = 5, sort = "none", search = "" } = req.query;
-  page = parseInt(page);
-  limit = parseInt(limit);
-
-  // Default sorting: newest first
-  let sortColumn = "xata.createdAt";
-  let sortOrder = "desc";
-
-  if (sort === "price_asc") {
-    sortColumn = "price";
-    sortOrder = "asc";
-  } else if (sort === "price_desc") {
-    sortColumn = "price";
-    sortOrder = "desc";
-  }
-
-  let filter = { is_published: true };
-
-if (search && search.trim() !== "") {
-  filter.item_name = { $contains: search };
-}
-
-  const result = await xata.db.sell_listings
-    .filter(filter)
-    .sort(sortColumn, sortOrder) // ✅ FIXED
-    .getPaginated({
-      pagination: { size: limit, offset: (page - 1) * limit },
-    });
-
-  const listings = result.records.map((l) => ({
-    ...l,
-    images: l.images ? l.images.map((file) => file.url) : [],
-  }));
-
-  res.json({
-    listings,
-    total: result.totalCount,
-    page,
-    totalPages: Math.ceil(result.totalCount / limit),
-  });
-});
-
 app.post('/preowned/sell', upload.array('images'), async (req, res) => {
   console.log("BODY:", req.body);
   console.log("FILES:", req.files);
@@ -140,28 +97,29 @@ app.post('/preowned/sell', upload.array('images'), async (req, res) => {
       .status(400)
       .send("Total image size cannot exceed 200KB. Please compress your images.");
 
-const record = await xata.db.sell_listings.create({
-  seller_name,
-  email,
-  contact_number,
-  whatsapp_number,
-  item_name,
-  item_description,
-  price: parseFloat(price) || 0,
-  images: req.files.map((file) => ({
-    name: file.originalname,
-    mediaType: file.mimetype,
-    base64Content: file.buffer.toString("base64"),
-  })),
-  is_published: false, // start unpublished
-});
+  // ✅ Create record first
+  const record = await xata.db.sell_listings.create({
+    seller_name,
+    email,
+    contact_number,
+    whatsapp_number,
+    item_name,
+    item_description,
+    price: parseFloat(price) || 0,
+    images: req.files.map((file) => ({
+      name: file.originalname,
+      mediaType: file.mimetype,
+      base64Content: file.buffer.toString("base64"),
+    })),
+  });
 
-// Use record.xata_id for OTP store
-const otp = Math.floor(100000 + Math.random() * 900000).toString();
-otpStore[email] = { otp, listingId: record.xata_id, type: "sell" };
+  // ✅ OTP storage keyed by listingId
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  otpStore[record.xata_id] = { otp, email, type: "sell" };
 
-const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
-const verifyUrl = `${baseUrl}/verify-otp/sell?id=${record.xata_id}&email=${encodeURIComponent(email)}`;
+  const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
+  const verifyUrl = `${baseUrl}/verify-otp/sell?id=${record.xata_id}&email=${encodeURIComponent(email)}`;
+
   transporter.sendMail(
     {
       from: process.env.EMAIL_USER,
@@ -171,7 +129,22 @@ const verifyUrl = `${baseUrl}/verify-otp/sell?id=${record.xata_id}&email=${encod
     },
     () => {}
   );
+
   res.send(`<h1>OTP sent to your email!</h1><a href="${verifyUrl}">Verify here</a>`);
+});
+
+app.post("/verify-otp/sell", async (req, res) => {
+  const { id, email, otp } = req.body;
+  const otpData = otpStore[id];
+
+  if (!otpData || otpData.otp !== otp || otpData.email !== email || otpData.type !== "sell") {
+    return res.status(400).send("Invalid OTP");
+  }
+
+  await xata.db.sell_listings.update(id, { is_published: true });
+  delete otpStore[id];
+
+  res.send(`<h1>Sell Listing Verified!</h1><a href="/preowned/buy">View listings</a>`);
 });
 
 app.get("/verify-otp/sell", (req, res) => {
@@ -200,48 +173,6 @@ app.post("/verify-otp/sell", async (req, res) => {
 });
 
 // ---------------- LEASE LISTINGS ----------------
-app.get("/api/lease/listings", async (req, res) => {
-  let { page = 1, limit = 5, sort = "none", search = "" } = req.query;
-  page = parseInt(page);
-  limit = parseInt(limit);
-
-  let sortColumn = "xata.createdAt";
-  let sortOrder = "desc";
-
-  if (sort === "price_asc") {
-    sortColumn = "price";
-    sortOrder = "asc";
-  } else if (sort === "price_desc") {
-    sortColumn = "price";
-    sortOrder = "desc";
-  }
-
-  let filter = { is_published: true };
-
-if (search && search.trim() !== "") {
-  filter.item_name = { $contains: search };
-}
-
-  const result = await xata.db.lease_listings
-    .filter(filter)
-    .sort(sortColumn, sortOrder) // ✅ FIXED
-    .getPaginated({
-      pagination: { size: limit, offset: (page - 1) * limit },
-    });
-
-  const listings = result.records.map((l) => ({
-    ...l,
-    images: l.images ? l.images.map((file) => file.url) : [],
-  }));
-
-  res.json({
-    listings,
-    total: result.totalCount,
-    page,
-    totalPages: Math.ceil(result.totalCount / limit),
-  });
-});
-
 app.post("/preowned/lease", upload.array("images"), async (req, res) => {
   const {
     seller_name = "",
@@ -264,28 +195,29 @@ app.post("/preowned/lease", upload.array("images"), async (req, res) => {
   if (totalSize > 5 * 1024 * 1024)
     return res.status(400).send("Total image size cannot exceed 5MB");
 
-const record = await xata.db.lease_listings.create({
-  seller_name,
-  email,
-  contact_number,
-  whatsapp_number,
-  item_name,
-  item_description,
-  price: parseFloat(price) || 0,
-  images: req.files.map((file) => ({
-    name: file.originalname,
-    mediaType: file.mimetype,
-    base64Content: file.buffer.toString("base64"),
-  })),
-  is_published: false, // start unpublished
-});
+  // ✅ Create record first
+  const record = await xata.db.lease_listings.create({
+    seller_name,
+    email,
+    contact_number,
+    whatsapp_number,
+    item_name,
+    item_description,
+    price: parseFloat(price) || 0,
+    images: req.files.map((file) => ({
+      name: file.originalname,
+      mediaType: file.mimetype,
+      base64Content: file.buffer.toString("base64"),
+    })),
+  });
 
-// Use record.xata_id for OTP store
-const otp = Math.floor(100000 + Math.random() * 900000).toString();
-otpStore[email] = { otp, listingId: record.xata_id, type: "sell" };
+  // ✅ OTP storage keyed by listingId
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  otpStore[record.xata_id] = { otp, email, type: "lease" };
 
-const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
-const verifyUrl = `${baseUrl}/verify-otp/sell?id=${record.xata_id}&email=${encodeURIComponent(email)}`;
+  const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
+  const verifyUrl = `${baseUrl}/verify-otp/lease?id=${record.xata_id}&email=${encodeURIComponent(email)}`;
+
   transporter.sendMail(
     {
       from: process.env.EMAIL_USER,
@@ -295,7 +227,22 @@ const verifyUrl = `${baseUrl}/verify-otp/sell?id=${record.xata_id}&email=${encod
     },
     () => {}
   );
+
   res.send(`<h1>OTP sent to your email!</h1><a href="${verifyUrl}">Verify here</a>`);
+});
+
+app.post("/verify-otp/lease", async (req, res) => {
+  const { id, email, otp } = req.body;
+  const otpData = otpStore[id];
+
+  if (!otpData || otpData.otp !== otp || otpData.email !== email || otpData.type !== "lease") {
+    return res.status(400).send("Invalid OTP");
+  }
+
+  await xata.db.lease_listings.update(id, { is_published: true });
+  delete otpStore[id];
+
+  res.send(`<h1>Lease Listing Verified!</h1><a href="/preowned/rent">View listings</a>`);
 });
 
 app.get("/verify-otp/lease", (req, res) => {
