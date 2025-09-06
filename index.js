@@ -75,16 +75,16 @@ app.get("/api/sell/listings", async (req, res) => {
   page = parseInt(page);
   limit = parseInt(limit);
 
-  let orderBy;
+  let sortColumn = "xata.createdAt";
+let sortOrder = "desc"; // default: newest first
 
-    if (sort === "price_asc") {
-      orderBy = [{ column: "price", order: "asc" }];
-    } else if (sort === "price_desc") {
-      orderBy = [{ column: "price", order: "desc" }];
-    } else {
-      // default: newest first
-      orderBy = [{ column: "xata.createdAt", order: "desc" }];
-    }
+if (sort === "price_asc") {
+  sortColumn = "price";
+  sortOrder = "asc";
+} else if (sort === "price_desc") {
+  sortColumn = "price";
+  sortOrder = "desc";
+}
 
   const filter = {
     is_published: true,
@@ -206,16 +206,16 @@ app.get("/api/lease/listings", async (req, res) => {
   page = parseInt(page);
   limit = parseInt(limit);
 
-  let orderBy;
+  let sortColumn = "xata.createdAt";
+let sortOrder = "desc"; // default: newest first
 
-    if (sort === "price_asc") {
-      orderBy = [{ column: "price", order: "asc" }];
-    } else if (sort === "price_desc") {
-      orderBy = [{ column: "price", order: "desc" }];
-    } else {
-      // default: newest first
-      orderBy = [{ column: "xata.createdAt", order: "desc" }];
-    }
+if (sort === "price_asc") {
+  sortColumn = "price";
+  sortOrder = "asc";
+} else if (sort === "price_desc") {
+  sortColumn = "price";
+  sortOrder = "desc";
+}
 
   const filter = {
     is_published: true,
