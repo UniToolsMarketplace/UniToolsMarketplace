@@ -144,7 +144,7 @@ function renderListings(listings, page, totalPages) {
   listings.forEach(l => {
     const card = document.createElement("div");
     card.className = "listing-card";
-    card.onclick = () => window.location.href = `/listing/${l.xata_id}`;
+    card.onclick = () => window.location.href = `/listing/${xata_id}`;
 
     const img = document.createElement("img");
     img.src = l.images && l.images.length > 0 ? l.images[0] : "/placeholder.png";
