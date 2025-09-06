@@ -1,0 +1,117 @@
+{
+  "done": true,
+  "migration": {
+    "name": "mig_d2tmndtpb18nnrham710",
+    "operations": [
+      {
+        "create_table": {
+          "name": "lease_listings",
+          "columns": [
+            {
+              "name": "seller_name",
+              "type": "text",
+              "comment": "{}",
+              "nullable": true
+            },
+            {
+              "name": "email",
+              "type": "text",
+              "comment": "{}",
+              "nullable": true
+            },
+            {
+              "name": "contact_number",
+              "type": "integer",
+              "comment": "{}",
+              "nullable": true
+            },
+            {
+              "name": "whatsapp_number",
+              "type": "integer",
+              "comment": "{}",
+              "nullable": true
+            },
+            {
+              "name": "item_name",
+              "type": "text",
+              "comment": "{}",
+              "nullable": true
+            },
+            {
+              "name": "item_description",
+              "type": "text",
+              "comment": "{}",
+              "nullable": true
+            },
+            {
+              "name": "price",
+              "type": "integer",
+              "comment": "{}",
+              "nullable": true
+            },
+            {
+              "name": "price_period",
+              "type": "text",
+              "comment": "{}",
+              "nullable": true
+            },
+            {
+              "name": "images",
+              "type": "xata.xata_file",
+              "comment": "{}",
+              "nullable": true
+            },
+            {
+              "name": "is_published",
+              "type": "boolean",
+              "comment": "{}",
+              "nullable": true
+            },
+            {
+              "name": "xata_version",
+              "type": "integer",
+              "default": "0"
+            },
+            {
+              "name": "xata_createdat",
+              "type": "timestamptz",
+              "default": "now()"
+            },
+            {
+              "name": "xata_updatedat",
+              "type": "timestamptz",
+              "default": "now()"
+            },
+            {
+              "name": "xata_id",
+              "type": "text",
+              "check": {
+                "name": "lease_listings_xata_id_length_xata_id",
+                "constraint": "length(\"xata_id\") < 256"
+              },
+              "unique": true,
+              "default": "'rec_' || xata_private.xid()"
+            }
+          ]
+        }
+      },
+      {
+        "sql": {
+          "up": "ALTER TABLE \"lease_listings\" REPLICA IDENTITY FULL",
+          "onComplete": true
+        }
+      },
+      {
+        "sql": {
+          "up": "CREATE TRIGGER xata_maintain_metadata_trigger_pgroll\n  BEFORE INSERT OR UPDATE\n  ON \"lease_listings\"\n  FOR EACH ROW\n  EXECUTE FUNCTION xata_private.maintain_metadata_trigger_pgroll()",
+          "onComplete": true
+        }
+      }
+    ]
+  },
+  "migrationType": "pgroll",
+  "name": "mig_d2tmndtpb18nnrham710",
+  "parent": "mig_d2tlv5tpb18nnrham6pg",
+  "schema": "public",
+  "startedAt": "2025-09-05T23:01:12.420784Z"
+}

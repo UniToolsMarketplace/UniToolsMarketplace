@@ -1,0 +1,24 @@
+{
+  "done": true,
+  "migration": {
+    "name": "mig_d2tn5tdpb18nnrham7c0",
+    "operations": [
+      {
+        "add_column": {
+          "table": "lease_listings",
+          "column": {
+            "name": "price",
+            "type": "float",
+            "comment": "",
+            "nullable": true
+          }
+        }
+      }
+    ]
+  },
+  "migrationType": "pgroll",
+  "name": "mig_d2tn5tdpb18nnrham7c0",
+  "parent": "mig_d2tn5ltpb18nnrham7b0",
+  "schema": "public",
+  "startedAt": "2025-09-05T23:32:05.712786Z"
+}

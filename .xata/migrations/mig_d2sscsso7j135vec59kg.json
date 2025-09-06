@@ -1,0 +1,24 @@
+{
+  "done": true,
+  "migration": {
+    "name": "mig_d2sscsso7j135vec59kg",
+    "operations": [
+      {
+        "add_column": {
+          "table": "sell_listings",
+          "column": {
+            "name": "item_name",
+            "type": "text",
+            "comment": "",
+            "nullable": true
+          }
+        }
+      }
+    ]
+  },
+  "migrationType": "pgroll",
+  "name": "mig_d2sscsso7j135vec59kg",
+  "parent": "mig_d2ssbl4o7j135vec59jg",
+  "schema": "public",
+  "startedAt": "2025-09-04T17:03:48.515414Z"
+}

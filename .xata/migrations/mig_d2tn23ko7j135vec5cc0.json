@@ -1,0 +1,24 @@
+{
+  "done": true,
+  "migration": {
+    "name": "mig_d2tn23ko7j135vec5cc0",
+    "operations": [
+      {
+        "add_column": {
+          "table": "sell_listings",
+          "column": {
+            "name": "whatsapp_number",
+            "type": "text",
+            "comment": "",
+            "nullable": true
+          }
+        }
+      }
+    ]
+  },
+  "migrationType": "pgroll",
+  "name": "mig_d2tn23ko7j135vec5cc0",
+  "parent": "mig_d2tn1tso7j135vec5cb0",
+  "schema": "public",
+  "startedAt": "2025-09-05T23:23:59.719385Z"
+}

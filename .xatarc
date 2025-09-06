@@ -1,7 +1,7 @@
 {
-  "databaseURL": "https://UniToolsMarketplace-s-workspace-35jkgh.eu-central-1.xata.sh/db/unitools-db",
+  "databaseURL": "https://UniToolsMarketplace-s-workspace-35jkgh.eu-central-1.xata.sh/db/unitools_db:main",
   "codegen": {
-    "output": "xata.js",
+    "output": "xata.client.js",
     "moduleType": "cjs"
   }
 }

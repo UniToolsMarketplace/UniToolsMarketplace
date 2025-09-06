@@ -1,0 +1,24 @@
+{
+  "done": true,
+  "migration": {
+    "name": "mig_d2ssf77ugtum9hretoj0",
+    "operations": [
+      {
+        "add_column": {
+          "table": "sell_listings",
+          "column": {
+            "name": "price",
+            "type": "float",
+            "comment": "",
+            "nullable": true
+          }
+        }
+      }
+    ]
+  },
+  "migrationType": "pgroll",
+  "name": "mig_d2ssf77ugtum9hretoj0",
+  "parent": "mig_d2ssdrnugtum9hretohg",
+  "schema": "public",
+  "startedAt": "2025-09-04T17:08:45.622088Z"
+}

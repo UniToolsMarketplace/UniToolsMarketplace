@@ -1,0 +1,19 @@
+{
+  "done": true,
+  "migration": {
+    "name": "mig_d2tn4utpb18nnrham780",
+    "operations": [
+      {
+        "drop_column": {
+          "table": "lease_listings",
+          "column": "whatsapp_number"
+        }
+      }
+    ]
+  },
+  "migrationType": "pgroll",
+  "name": "mig_d2tn4utpb18nnrham780",
+  "parent": "mig_d2tn2sfugtum9hretqa0",
+  "schema": "public",
+  "startedAt": "2025-09-05T23:30:04.692699Z"
+}

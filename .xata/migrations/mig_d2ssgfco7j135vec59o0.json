@@ -1,0 +1,24 @@
+{
+  "done": true,
+  "migration": {
+    "name": "mig_d2ssgfco7j135vec59o0",
+    "operations": [
+      {
+        "add_column": {
+          "table": "sell_listings",
+          "column": {
+            "name": "price_period",
+            "type": "text",
+            "comment": "",
+            "nullable": true
+          }
+        }
+      }
+    ]
+  },
+  "migrationType": "pgroll",
+  "name": "mig_d2ssgfco7j135vec59o0",
+  "parent": "mig_d2ssf77ugtum9hretoj0",
+  "schema": "public",
+  "startedAt": "2025-09-04T17:11:26.004825Z"
+}

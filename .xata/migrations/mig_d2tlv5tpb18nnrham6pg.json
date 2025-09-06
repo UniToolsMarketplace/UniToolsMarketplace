@@ -1,0 +1,24 @@
+{
+  "done": true,
+  "migration": {
+    "name": "mig_d2tlv5tpb18nnrham6pg",
+    "operations": [
+      {
+        "add_column": {
+          "table": "sell_listings",
+          "column": {
+            "name": "images",
+            "type": "json",
+            "comment": "",
+            "nullable": true
+          }
+        }
+      }
+    ]
+  },
+  "migrationType": "pgroll",
+  "name": "mig_d2tlv5tpb18nnrham6pg",
+  "parent": "mig_d2t35rco7j135vec5ad0",
+  "schema": "public",
+  "startedAt": "2025-09-05T22:09:28.714883Z"
+}

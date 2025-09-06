@@ -1,0 +1,18 @@
+{
+  "done": true,
+  "migration": {
+    "name": "mig_d2t2ntlpb18nnrham5lg",
+    "operations": [
+      {
+        "drop_table": {
+          "name": "lease_listings"
+        }
+      }
+    ]
+  },
+  "migrationType": "pgroll",
+  "name": "mig_d2t2ntlpb18nnrham5lg",
+  "parent": "mig_d2t2n6co7j135vec5aa0",
+  "schema": "public",
+  "startedAt": "2025-09-05T00:16:55.283711Z"
+}

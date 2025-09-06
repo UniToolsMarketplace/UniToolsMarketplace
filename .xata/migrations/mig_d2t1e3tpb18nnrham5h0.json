@@ -1,0 +1,107 @@
+{
+  "done": true,
+  "migration": {
+    "name": "mig_d2t1e3tpb18nnrham5h0",
+    "operations": [
+      {
+        "create_table": {
+          "name": "sell_listings",
+          "columns": [
+            {
+              "name": "seller_name",
+              "type": "text"
+            },
+            {
+              "name": "email",
+              "type": "text"
+            },
+            {
+              "name": "contact_number",
+              "type": "text"
+            },
+            {
+              "name": "whatsapp_number",
+              "type": "text"
+            },
+            {
+              "name": "item_name",
+              "type": "text"
+            },
+            {
+              "name": "item_description",
+              "type": "text"
+            },
+            {
+              "name": "price",
+              "type": "float"
+            },
+            {
+              "name": "price_period",
+              "type": "text"
+            },
+            {
+              "name": "images",
+              "type": "text"
+            },
+            {
+              "name": "is_published",
+              "type": "bool"
+            }
+          ]
+        }
+      },
+      {
+        "create_table": {
+          "name": "lease_listings",
+          "columns": [
+            {
+              "name": "seller_name",
+              "type": "text"
+            },
+            {
+              "name": "email",
+              "type": "text"
+            },
+            {
+              "name": "contact_number",
+              "type": "text"
+            },
+            {
+              "name": "whatsapp_number",
+              "type": "text"
+            },
+            {
+              "name": "item_name",
+              "type": "text"
+            },
+            {
+              "name": "item_description",
+              "type": "text"
+            },
+            {
+              "name": "price",
+              "type": "float"
+            },
+            {
+              "name": "price_period",
+              "type": "text"
+            },
+            {
+              "name": "images",
+              "type": "text"
+            },
+            {
+              "name": "is_published",
+              "type": "bool"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "migrationType": "pgroll",
+  "name": "mig_d2t1e3tpb18nnrham5h0",
+  "parent": "mig_d2t17fko7j135vec5a0g",
+  "schema": "public",
+  "startedAt": "2025-09-04T22:47:44.007306Z"
+}

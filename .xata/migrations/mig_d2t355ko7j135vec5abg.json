@@ -1,0 +1,19 @@
+{
+  "done": true,
+  "migration": {
+    "name": "mig_d2t355ko7j135vec5abg",
+    "operations": [
+      {
+        "drop_column": {
+          "table": "sell_listings",
+          "column": "idd"
+        }
+      }
+    ]
+  },
+  "migrationType": "pgroll",
+  "name": "mig_d2t355ko7j135vec5abg",
+  "parent": "mig_d2t34afugtum9hretp2g",
+  "schema": "public",
+  "startedAt": "2025-09-05T00:45:12.168913Z"
+}

@@ -1,0 +1,19 @@
+{
+  "done": true,
+  "migration": {
+    "name": "mig_d2tn534o7j135vec5cd0",
+    "operations": [
+      {
+        "drop_column": {
+          "table": "lease_listings",
+          "column": "contact_number"
+        }
+      }
+    ]
+  },
+  "migrationType": "pgroll",
+  "name": "mig_d2tn534o7j135vec5cd0",
+  "parent": "mig_d2tn4utpb18nnrham780",
+  "schema": "public",
+  "startedAt": "2025-09-05T23:30:21.723718Z"
+}

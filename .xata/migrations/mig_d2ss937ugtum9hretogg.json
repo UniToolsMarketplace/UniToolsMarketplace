@@ -1,0 +1,24 @@
+{
+  "done": true,
+  "migration": {
+    "name": "mig_d2ss937ugtum9hretogg",
+    "operations": [
+      {
+        "add_column": {
+          "table": "sell_listings",
+          "column": {
+            "name": "email",
+            "type": "text",
+            "comment": "",
+            "nullable": true
+          }
+        }
+      }
+    ]
+  },
+  "migrationType": "pgroll",
+  "name": "mig_d2ss937ugtum9hretogg",
+  "parent": "mig_d2ss7cso7j135vec59hg",
+  "schema": "public",
+  "startedAt": "2025-09-04T16:55:41.111339Z"
+}

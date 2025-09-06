@@ -1,0 +1,25 @@
+{
+  "done": true,
+  "migration": {
+    "name": "mig_d2t34afugtum9hretp2g",
+    "operations": [
+      {
+        "add_column": {
+          "table": "sell_listings",
+          "column": {
+            "name": "idd",
+            "type": "text",
+            "unique": true,
+            "comment": "",
+            "nullable": true
+          }
+        }
+      }
+    ]
+  },
+  "migrationType": "pgroll",
+  "name": "mig_d2t34afugtum9hretp2g",
+  "parent": "mig_d2t32ofugtum9hretp1g",
+  "schema": "public",
+  "startedAt": "2025-09-05T00:43:22.918705Z"
+}
