@@ -101,7 +101,10 @@ app.get("/api/sell/listings", async (req, res) => {
   });
 });
 
-app.post("/preowned/sell", upload.array("images"), async (req, res) => {
+app.post('/preowned/sell', upload.array('images'), async (req, res) => {
+  console.log("BODY:", req.body);
+  console.log("FILES:", req.files);
+
   const {
     seller_name = "",
     email,
