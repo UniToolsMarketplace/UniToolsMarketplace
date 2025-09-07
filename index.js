@@ -97,7 +97,7 @@ app.get("/api/sell/listings", async (req, res) => {
 
 // ---------------- SELL FORM + OTP ----------------
 app.post("/preowned/sell", upload.array("images"), async (req, res) => {
-  const { seller_name = "", email, contact_number = "", whatsapp_number = "", item_name, item_description = "", price, price_period = "" } = req.body;
+  const { seller_name = "", email, contact_number = "", whatsapp_number = "", item_name, item_description = "", price = "" } = req.body;
 
   if (!email || !email.endsWith("@bue.edu.eg")) return res.status(400).send("Email must be @bue.edu.eg domain");
   if (!item_name || !price) return res.status(400).send("Missing required fields");
@@ -121,7 +121,6 @@ app.post("/preowned/sell", upload.array("images"), async (req, res) => {
       item_name,
       item_description,
       price: parseFloat(price),
-      price_period,
       images: req.files.map(file => ({
         name: file.originalname,
         mediaType: file.mimetype,
