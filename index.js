@@ -97,64 +97,48 @@ app.get("/api/sell/listings", async (req, res) => {
 
 // ---------------- SELL FORM + OTP ----------------
 app.post("/preowned/sell", upload.array("images"), async (req, res) => {
-  console.log("BODY:", req.body);
-  console.log("FILES:", req.files);
+  const { seller_name = "", email, contact_number = "", whatsapp_number = "", item_name, item_description = "", price, price_period = "" } = req.body;
 
-  const {
-    seller_name = "",
-    email,
-    contact_number = "",
-    whatsapp_number = "",
-    item_name,
-    item_description = "",
-    price,
-    price_period = "",
-  } = req.body;
+  if (!email || !email.endsWith("@bue.edu.eg")) return res.status(400).send("Email must be @bue.edu.eg domain");
+  if (!item_name || !price) return res.status(400).send("Missing required fields");
 
-  if (!email || !email.endsWith("@bue.edu.eg"))
-    return res.status(400).send("Email must be @bue.edu.eg domain");
-  if (!item_name || !price)
-    return res.status(400).send("Missing required fields");
-
-  // size check (200 KB total)
   const totalSize = req.files.reduce((sum, f) => sum + f.size, 0);
-  if (totalSize > 200 * 1024)
-    return res
-      .status(400)
-      .send("Total image size cannot exceed 200KB. Please compress your images.");
+  if (totalSize > 200 * 1024) return res.status(400).send("Total image size cannot exceed 200KB.");
 
-  const id = uuidv4();
+  const id = uuidv4(); // temporary id
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-  otpStore[email] = { otp, listingId: id, type: "sell" };
-
-  await xata.db.sell_listings.create({
-    seller_name,
-    email,
-    contact_number,
-    whatsapp_number,
-    item_name,
-    item_description,
-    price: parseFloat(price) || 0,
-    images: req.files.map((file) => ({
-      name: file.originalname,
-      mediaType: file.mimetype,
-      base64Content: file.buffer.toString("base64"),
-    })),
-  });
+  // Store form data in memory until verification
+  otpStore[email] = {
+    otp,
+    type: "sell",
+    formData: {
+      id,
+      seller_name,
+      email,
+      contact_number,
+      whatsapp_number,
+      item_name,
+      item_description,
+      price: parseFloat(price),
+      price_period,
+      images: req.files.map(file => ({
+        name: file.originalname,
+        mediaType: file.mimetype,
+        base64Content: file.buffer.toString("base64"),
+      }))
+    }
+  };
 
   const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
-  const verifyUrl = `${baseUrl}/verify-otp/sell?id=${id}&email=${encodeURIComponent(email)}`;
+  const verifyUrl = `${baseUrl}/verify-otp/sell?email=${encodeURIComponent(email)}`;
 
-  transporter.sendMail(
-    {
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: "OTP for Your Sell Listing",
-      html: `<p>Your OTP: <b>${otp}</b></p><p>Verify: <a href="${verifyUrl}">${verifyUrl}</a></p>`,
-    },
-    () => {}
-  );
+  transporter.sendMail({
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: "OTP for Your Sell Listing",
+    html: `<p>Your OTP: <b>${otp}</b></p><p>Verify: <a href="${verifyUrl}">${verifyUrl}</a></p>`,
+  });
 
   res.send(`<h1>OTP sent to your email!</h1><a href="${verifyUrl}">Verify here</a>`);
 });
@@ -171,13 +155,16 @@ app.get("/verify-otp/sell", (req, res) => {
 });
 
 app.post("/verify-otp/sell", async (req, res) => {
-  const { id, email, otp } = req.body;
+  const { email, otp } = req.body;
   const otpData = otpStore[email];
 
-  if (!otpData || otpData.otp !== otp || otpData.listingId !== id || otpData.type !== "sell")
+  if (!otpData || otpData.otp !== otp || otpData.type !== "sell")
     return res.status(400).send("Invalid OTP");
 
-  await xata.db.sell_listings.update(id, { is_published: true });
+  // Store the listing in Xata after OTP verification
+  const listing = otpData.formData;
+  await xata.db.sell_listings.create(listing);
+
   delete otpStore[email];
 
   res.send(`<h1>Sell Listing Verified!</h1><a href="/preowned/buy">View listings</a>`);
@@ -226,59 +213,47 @@ app.get("/api/lease/listings", async (req, res) => {
 });
 
 app.post("/preowned/lease", upload.array("images"), async (req, res) => {
-  const {
-    seller_name = "",
-    email,
-    contact_number = "",
-    whatsapp_number = "",
-    item_name,
-    item_description = "",
-    price,
-    price_period = "",
-  } = req.body;
+  const { seller_name = "", email, contact_number = "", whatsapp_number = "", item_name, item_description = "", price, price_period = "" } = req.body;
 
-  if (!email || !email.endsWith("@bue.edu.eg"))
-    return res.status(400).send("Email must be @bue.edu.eg domain");
-  if (!item_name || !price)
-    return res.status(400).send("Missing required fields");
+  if (!email || !email.endsWith("@bue.edu.eg")) return res.status(400).send("Email must be @bue.edu.eg domain");
+  if (!item_name || !price || !price_period) return res.status(400).send("Missing required fields");
 
-  // size check (5 MB total)
   const totalSize = req.files.reduce((sum, f) => sum + f.size, 0);
-  if (totalSize > 5 * 1024 * 1024)
-    return res.status(400).send("Total image size cannot exceed 5MB");
+  if (totalSize > 5 * 1024 * 1024) return res.status(400).send("Total image size cannot exceed 5MB.");
 
   const id = uuidv4();
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-  otpStore[email] = { otp, listingId: id, type: "lease" };
-
-  await xata.db.lease_listings.create({
-    seller_name,
-    email,
-    contact_number,
-    whatsapp_number,
-    item_name,
-    item_description,
-    price: parseFloat(price) || 0,
-    images: req.files.map((file) => ({
-      name: file.originalname,
-      mediaType: file.mimetype,
-      base64Content: file.buffer.toString("base64"),
-    })),
-  });
+  otpStore[email] = {
+    otp,
+    type: "lease",
+    formData: {
+      id,
+      seller_name,
+      email,
+      contact_number,
+      whatsapp_number,
+      item_name,
+      item_description,
+      price: parseFloat(price),
+      price_period,
+      images: req.files.map(file => ({
+        name: file.originalname,
+        mediaType: file.mimetype,
+        base64Content: file.buffer.toString("base64"),
+      }))
+    }
+  };
 
   const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
-  const verifyUrl = `${baseUrl}/verify-otp/lease?id=${id}&email=${encodeURIComponent(email)}`;
+  const verifyUrl = `${baseUrl}/verify-otp/lease?email=${encodeURIComponent(email)}`;
 
-  transporter.sendMail(
-    {
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: "OTP for Your Lease Listing",
-      html: `<p>Your OTP: <b>${otp}</b></p><p>Verify: <a href="${verifyUrl}">${verifyUrl}</a></p>`,
-    },
-    () => {}
-  );
+  transporter.sendMail({
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: "OTP for Your Lease Listing",
+    html: `<p>Your OTP: <b>${otp}</b></p><p>Verify: <a href="${verifyUrl}">${verifyUrl}</a></p>`,
+  });
 
   res.send(`<h1>OTP sent to your email!</h1><a href="${verifyUrl}">Verify here</a>`);
 });
@@ -295,13 +270,15 @@ app.get("/verify-otp/lease", (req, res) => {
 });
 
 app.post("/verify-otp/lease", async (req, res) => {
-  const { id, email, otp } = req.body;
+  const { email, otp } = req.body;
   const otpData = otpStore[email];
 
-  if (!otpData || otpData.otp !== otp || otpData.listingId !== id || otpData.type !== "lease")
+  if (!otpData || otpData.otp !== otp || otpData.type !== "lease")
     return res.status(400).send("Invalid OTP");
 
-  await xata.db.lease_listings.update(id, { is_published: true });
+  const listing = otpData.formData;
+  await xata.db.lease_listings.create(listing);
+
   delete otpStore[email];
 
   res.send(`<h1>Lease Listing Verified!</h1><a href="/preowned/rent">View listings</a>`);
