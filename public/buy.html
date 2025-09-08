@@ -147,7 +147,11 @@ function renderListings(listings, page, totalPages) {
     card.onclick = () => window.location.href = `/listing/${l.id}`;
 
     const img = document.createElement("img");
-    img.src = l.images && l.images.length > 0 ? l.images[0] : "/placeholder.png";
+    if (l.images && l.images.length > 0) {
+      img.src = l.images[0].startsWith("data:") ? l.images[0] : l.images[0];
+    } else {
+      img.src = "/placeholder.png";
+    }
 
     const info = document.createElement("div");
     info.className = "listing-info";
@@ -188,7 +192,6 @@ function renderPagination(current, totalPages) {
   nav.style.marginTop = "20px";
   nav.style.textAlign = "center";
 
-  // Previous button
   if (current > 1) {
     const prevBtn = document.createElement('button');
     prevBtn.innerText = "Previous";
@@ -197,8 +200,6 @@ function renderPagination(current, totalPages) {
     nav.appendChild(prevBtn);
   }
 
-
-  // Page number buttons
   for (let i = 1; i <= totalPages; i++) {
     const btn = document.createElement('button');
     btn.innerText = i;
@@ -208,7 +209,6 @@ function renderPagination(current, totalPages) {
     nav.appendChild(btn);
   }
 
-  // Next button
   if (current < totalPages) {
     const nextBtn = document.createElement('button');
     nextBtn.innerText = "Next";
@@ -234,6 +234,7 @@ fetchListings();
   </script>
 </body>
 </html>
+
 
 
 <!DOCTYPE html>

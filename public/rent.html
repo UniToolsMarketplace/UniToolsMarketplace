@@ -121,7 +121,7 @@ let listings = [];
 let currentPage = 1;
 let currentSort = "none";
 let currentSearch = "";
-const limit = 5; // items per page
+const limit = 5;
 
 async function fetchListings(page = 1, sort = currentSort, search = currentSearch) {
   const res = await fetch(`/api/lease/listings?page=${page}&limit=${limit}&sort=${sort}&search=${encodeURIComponent(search)}`);
@@ -135,7 +135,7 @@ async function fetchListings(page = 1, sort = currentSort, search = currentSearc
 
 function renderListings(listings) {
   const container = document.getElementById('listingsContainer');
-  container.innerHTML = ""; // clear before re-render
+  container.innerHTML = "";
 
   listings.forEach(listing => {
     const card = document.createElement('div');
@@ -143,7 +143,11 @@ function renderListings(listings) {
     card.onclick = () => window.location.href = `/listing/${listing.id}`;
 
     const img = document.createElement('img');
-    img.src = listing.images && listing.images.length > 0 ? listing.images[0] : "/placeholder.png";
+    if (listing.images && listing.images.length > 0) {
+      img.src = listing.images[0].startsWith("data:") ? listing.images[0] : listing.images[0];
+    } else {
+      img.src = "/placeholder.png";
+    }
 
     const info = document.createElement('div');
     info.className = "listing-info";
@@ -166,7 +170,6 @@ function renderListings(listings) {
 
     card.appendChild(img);
     card.appendChild(info);
-
     container.appendChild(card);
   });
 }
@@ -174,7 +177,6 @@ function renderListings(listings) {
 function renderPagination(current, totalPages) {
   const container = document.getElementById('listingsContainer');
 
-  // Remove old pagination
   const oldNav = container.querySelector('.pagination-nav');
   if (oldNav) oldNav.remove();
 
@@ -183,7 +185,6 @@ function renderPagination(current, totalPages) {
   nav.style.marginTop = "20px";
   nav.style.textAlign = "center";
 
-  // Previous button
   if (current > 1) {
     const prevBtn = document.createElement('button');
     prevBtn.innerText = "Previous";
@@ -192,7 +193,6 @@ function renderPagination(current, totalPages) {
     nav.appendChild(prevBtn);
   }
 
-  // Page number buttons
   for (let i = 1; i <= totalPages; i++) {
     const btn = document.createElement('button');
     btn.innerText = i;
@@ -202,7 +202,6 @@ function renderPagination(current, totalPages) {
     nav.appendChild(btn);
   }
 
-  // Next button
   if (current < totalPages) {
     const nextBtn = document.createElement('button');
     nextBtn.innerText = "Next";
@@ -228,6 +227,7 @@ fetchListings();
   </script>
 </body>
 </html>
+
 
 <!DOCTYPE html>
 <html lang="en">
