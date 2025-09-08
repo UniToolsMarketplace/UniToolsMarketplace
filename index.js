@@ -55,7 +55,7 @@ app.get("/preowned", (req, res) => res.sendFile(path.join(__dirname, "public/pre
 function formatImages(images) {
   if (!images) return [];
   if (Array.isArray(images)) {
-    return images.map((file) => file.url || `data:${file.mediaType};base64,${file.base64Content}`);
+    return images.map((file) => file.url);
   }
   return images.url ? [images.url] : [];
 }
@@ -114,6 +114,21 @@ app.post("/preowned/sell", upload.array("images"), async (req, res) => {
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
+  // Upload images to Xata first
+  const uploadedFiles = await Promise.all(
+    req.files.map((file) =>
+      xata.files.upload({
+        table: "sell_listings",
+        column: "images",
+        file: {
+          name: file.originalname,
+          mediaType: file.mimetype,
+          contents: file.buffer,
+        },
+      })
+    )
+  );
+
   // Save record to DB with is_published = false
   const record = await xata.db.sell_listings.create({
     seller_name,
@@ -124,11 +139,7 @@ app.post("/preowned/sell", upload.array("images"), async (req, res) => {
     item_description,
     price: parseFloat(price),
     is_published: false,
-    images: req.files.map(file => ({
-      name: file.originalname,
-      mediaType: file.mimetype,
-      base64Content: file.buffer.toString("base64"),
-    }))
+    images: uploadedFiles,
   });
 
   otpStore[email] = { otp, type: "sell", recordId: record.id };
@@ -224,6 +235,21 @@ app.post("/preowned/lease", upload.array("images"), async (req, res) => {
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
+  // Upload images to Xata first
+  const uploadedFiles = await Promise.all(
+    req.files.map((file) =>
+      xata.files.upload({
+        table: "lease_listings",
+        column: "images",
+        file: {
+          name: file.originalname,
+          mediaType: file.mimetype,
+          contents: file.buffer,
+        },
+      })
+    )
+  );
+
   const record = await xata.db.lease_listings.create({
     seller_name,
     email,
@@ -234,11 +260,7 @@ app.post("/preowned/lease", upload.array("images"), async (req, res) => {
     price: parseFloat(price),
     price_period,
     is_published: false,
-    images: req.files.map(file => ({
-      name: file.originalname,
-      mediaType: file.mimetype,
-      base64Content: file.buffer.toString("base64"),
-    }))
+    images: uploadedFiles,
   });
 
   otpStore[email] = { otp, type: "lease", recordId: record.id };
