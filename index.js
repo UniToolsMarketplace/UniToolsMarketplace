@@ -51,6 +51,15 @@ app.get("/faculties", (req, res) => res.sendFile(path.join(__dirname, "public/fa
 app.get("/dentistry", (req, res) => res.sendFile(path.join(__dirname, "public/dentistry.html")));
 app.get("/preowned", (req, res) => res.sendFile(path.join(__dirname, "public/preowned.html")));
 
+// ---------------- UTILS: FORMAT IMAGES ----------------
+function formatImages(images) {
+  if (!images) return [];
+  if (Array.isArray(images)) {
+    return images.map((file) => file.url || `data:${file.mediaType};base64,${file.base64Content}`);
+  }
+  return images.url ? [images.url] : [];
+}
+
 // ---------------- SELL LISTINGS WITH PAGINATION, SORT, SEARCH ----------------
 app.get("/api/sell/listings", async (req, res) => {
   let { page = 1, limit = 5, sort = "none", search = "" } = req.query;
@@ -82,7 +91,7 @@ app.get("/api/sell/listings", async (req, res) => {
 
   const listings = result.records.map((l) => ({
     ...l,
-    images: Array.isArray(l.images) ? l.images.map((file) => file.url) : (l.images ? [l.images.url] : []),
+    images: formatImages(l.images),
   }));
 
   res.json({
@@ -193,7 +202,7 @@ app.get("/api/lease/listings", async (req, res) => {
 
   const listings = result.records.map((l) => ({
     ...l,
-    images: Array.isArray(l.images) ? l.images.map((file) => file.url) : (l.images ? [l.images.url] : []),
+    images: formatImages(l.images),
   }));
 
   res.json({
@@ -282,7 +291,7 @@ app.get("/api/sell/listings/:id", async (req, res) => {
 
   const listing = {
     ...record,
-    images: Array.isArray(record.images) ? record.images.map((file) => file.url) : (record.images ? [record.images.url] : []),
+    images: formatImages(record.images),
   };
   res.json(listing);
 });
@@ -297,7 +306,7 @@ app.get("/api/lease/listings/:id", async (req, res) => {
 
   const listing = {
     ...record,
-    images: Array.isArray(record.images) ? record.images.map((file) => file.url) : (record.images ? [record.images.url] : []),
+    images: formatImages(record.images),
   };
   res.json(listing);
 });
