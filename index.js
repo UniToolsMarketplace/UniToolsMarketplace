@@ -55,7 +55,7 @@ app.get("/preowned", (req, res) => res.sendFile(path.join(__dirname, "public/pre
 function formatImages(images) {
   if (!images) return [];
   if (Array.isArray(images)) {
-    return images.map((file) => file.url || (file.mediaType && file.base64Content ? `data:${file.mediaType};base64,${file.base64Content}` : null)).filter(Boolean);
+    return images.map((file) => file.url || `data:${file.mediaType};base64,${file.base64Content}`);
   }
   return images.url ? [images.url] : [];
 }
@@ -109,18 +109,10 @@ app.post("/preowned/sell", upload.array("images"), async (req, res) => {
   if (!email || !email.endsWith("@bue.edu.eg")) return res.status(400).send("Email must be @bue.edu.eg domain");
   if (!item_name || !price) return res.status(400).send("Missing required fields");
 
-  const files = req.files || [];
-  const totalSize = files.reduce((sum, f) => sum + f.size, 0);
+  const totalSize = req.files.reduce((sum, f) => sum + f.size, 0);
   if (totalSize > 200 * 1024) return res.status(400).send("Total image size cannot exceed 200KB.");
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-  // Upload images to Xata first (if any)
-  const uploadedFiles = await Promise.all(
-    files.map((file) =>
-      xata.files.upload(file.originalname, file.buffer, { mediaType: file.mimetype })
-    )
-  );
 
   // Save record to DB with is_published = false
   const record = await xata.db.sell_listings.create({
@@ -132,7 +124,11 @@ app.post("/preowned/sell", upload.array("images"), async (req, res) => {
     item_description,
     price: parseFloat(price),
     is_published: false,
-    images: uploadedFiles,
+    images: req.files.map(file => ({
+      name: file.originalname,
+      mediaType: file.mimetype,
+      base64Content: file.buffer.toString("base64"),
+    }))
   });
 
   otpStore[email] = { otp, type: "sell", recordId: record.id };
@@ -223,18 +219,10 @@ app.post("/preowned/lease", upload.array("images"), async (req, res) => {
   if (!email || !email.endsWith("@bue.edu.eg")) return res.status(400).send("Email must be @bue.edu.eg domain");
   if (!item_name || !price || !price_period) return res.status(400).send("Missing required fields");
 
-  const files = req.files || [];
-  const totalSize = files.reduce((sum, f) => sum + f.size, 0);
+  const totalSize = req.files.reduce((sum, f) => sum + f.size, 0);
   if (totalSize > 5 * 1024 * 1024) return res.status(400).send("Total image size cannot exceed 5MB.");
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-  // Upload images to Xata first (if any)
-  const uploadedFiles = await Promise.all(
-    files.map((file) =>
-      xata.files.upload(file.originalname, file.buffer, { mediaType: file.mimetype })
-    )
-  );
 
   const record = await xata.db.lease_listings.create({
     seller_name,
@@ -246,7 +234,11 @@ app.post("/preowned/lease", upload.array("images"), async (req, res) => {
     price: parseFloat(price),
     price_period,
     is_published: false,
-    images: uploadedFiles,
+    images: req.files.map(file => ({
+      name: file.originalname,
+      mediaType: file.mimetype,
+      base64Content: file.buffer.toString("base64"),
+    }))
   });
 
   otpStore[email] = { otp, type: "lease", recordId: record.id };
