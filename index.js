@@ -113,8 +113,8 @@ app.post("/preowned/sell", upload.array("images"), async (req, res) => {
   if (totalSize > 200 * 1024) return res.status(400).send("Total image size cannot exceed 200KB.");
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-  // Upload images to Xata first
+ 
+ // Upload images to Xata first
   const uploadedFiles = await Promise.all(
     req.files.map((file) =>
       xata.files.upload(file.originalname, file.buffer, { mediaType: file.mimetype })
@@ -132,6 +132,8 @@ app.post("/preowned/sell", upload.array("images"), async (req, res) => {
     price: parseFloat(price),
     is_published: false,
     images: uploadedFiles,
+   }))
+
   });
 
   otpStore[email] = { otp, type: "sell", recordId: record.id };
@@ -245,6 +247,7 @@ app.post("/preowned/lease", upload.array("images"), async (req, res) => {
     price_period,
     is_published: false,
     images: uploadedFiles,
+    }))
   });
 
   otpStore[email] = { otp, type: "lease", recordId: record.id };
