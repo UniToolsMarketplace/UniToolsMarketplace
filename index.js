@@ -127,8 +127,9 @@ app.post("/preowned/sell", upload.array("images"), async (req, res) => {
     images: req.files.map(file => ({
       name: file.originalname,
       mediaType: file.mimetype,
-      base64Content: file.buffer.toString("base64"),
-    }))
+      file: file.buffer,  // pass the actual buffer to Xata
+   }))
+
   });
 
   otpStore[email] = { otp, type: "sell", recordId: record.id };
@@ -235,9 +236,9 @@ app.post("/preowned/lease", upload.array("images"), async (req, res) => {
     price_period,
     is_published: false,
     images: req.files.map(file => ({
-      name: file.originalname,
-      mediaType: file.mimetype,
-      base64Content: file.buffer.toString("base64"),
+     name: file.originalname,
+     mediaType: file.mimetype,
+     file: file.buffer,  // pass the actual buffer to Xata
     }))
   });
 
