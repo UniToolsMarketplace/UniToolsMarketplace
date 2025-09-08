@@ -2,7 +2,6 @@ const express = require("express");
 const path = require("path");
 const nodemailer = require("nodemailer");
 const multer = require("multer");
-const { v4: uuidv4 } = require("uuid");
 require("dotenv").config();
 const http = require("http");
 
@@ -58,7 +57,6 @@ app.get("/api/sell/listings", async (req, res) => {
   page = parseInt(page);
   limit = parseInt(limit);
 
-  // Default sorting: newest first
   let sortColumn = "xata.createdAt";
   let sortOrder = "desc";
 
@@ -105,29 +103,26 @@ app.post("/preowned/sell", upload.array("images"), async (req, res) => {
   const totalSize = req.files.reduce((sum, f) => sum + f.size, 0);
   if (totalSize > 200 * 1024) return res.status(400).send("Total image size cannot exceed 200KB.");
 
-  const id = uuidv4(); // temporary id
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-  // Store form data in memory until verification
-  otpStore[email] = {
-    otp,
-    type: "sell",
-    formData: {
-      id,
-      seller_name,
-      email,
-      contact_number,
-      whatsapp_number,
-      item_name,
-      item_description,
-      price: parseFloat(price),
-      images: req.files.map(file => ({
-        name: file.originalname,
-        mediaType: file.mimetype,
-        base64Content: file.buffer.toString("base64"),
-      }))
-    }
-  };
+  // Save record to DB with is_published = false
+  const record = await xata.db.sell_listings.create({
+    seller_name,
+    email,
+    contact_number,
+    whatsapp_number,
+    item_name,
+    item_description,
+    price: parseFloat(price),
+    is_published: false,
+    images: req.files.map(file => ({
+      name: file.originalname,
+      mediaType: file.mimetype,
+      base64Content: file.buffer.toString("base64"),
+    }))
+  });
+
+  otpStore[email] = { otp, type: "sell", recordId: record.id };
 
   const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
   const verifyUrl = `${baseUrl}/verify-otp/sell?email=${encodeURIComponent(email)}`;
@@ -145,7 +140,6 @@ app.post("/preowned/sell", upload.array("images"), async (req, res) => {
 app.get("/verify-otp/sell", (req, res) => {
   res.send(`
     <form action="/verify-otp/sell" method="POST">
-      <input type="hidden" name="id" value="${req.query.id}" />
       <input type="hidden" name="email" value="${req.query.email}" />
       <label>Enter OTP:</label><input name="otp" required />
       <button type="submit">Verify</button>
@@ -160,9 +154,8 @@ app.post("/verify-otp/sell", async (req, res) => {
   if (!otpData || otpData.otp !== otp || otpData.type !== "sell")
     return res.status(400).send("Invalid OTP");
 
-  // Store the listing in Xata after OTP verification
-  const listing = otpData.formData;
-  await xata.db.sell_listings.create(listing);
+  // Update record → publish
+  await xata.db.sell_listings.update(otpData.recordId, { is_published: true });
 
   delete otpStore[email];
 
@@ -220,29 +213,26 @@ app.post("/preowned/lease", upload.array("images"), async (req, res) => {
   const totalSize = req.files.reduce((sum, f) => sum + f.size, 0);
   if (totalSize > 5 * 1024 * 1024) return res.status(400).send("Total image size cannot exceed 5MB.");
 
-  const id = uuidv4();
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-  otpStore[email] = {
-    otp,
-    type: "lease",
-    formData: {
-      id,
-      seller_name,
-      email,
-      contact_number,
-      whatsapp_number,
-      item_name,
-      item_description,
-      price: parseFloat(price),
-      price_period,
-      images: req.files.map(file => ({
-        name: file.originalname,
-        mediaType: file.mimetype,
-        base64Content: file.buffer.toString("base64"),
-      }))
-    }
-  };
+  const record = await xata.db.lease_listings.create({
+    seller_name,
+    email,
+    contact_number,
+    whatsapp_number,
+    item_name,
+    item_description,
+    price: parseFloat(price),
+    price_period,
+    is_published: false,
+    images: req.files.map(file => ({
+      name: file.originalname,
+      mediaType: file.mimetype,
+      base64Content: file.buffer.toString("base64"),
+    }))
+  });
+
+  otpStore[email] = { otp, type: "lease", recordId: record.id };
 
   const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
   const verifyUrl = `${baseUrl}/verify-otp/lease?email=${encodeURIComponent(email)}`;
@@ -260,7 +250,6 @@ app.post("/preowned/lease", upload.array("images"), async (req, res) => {
 app.get("/verify-otp/lease", (req, res) => {
   res.send(`
     <form action="/verify-otp/lease" method="POST">
-      <input type="hidden" name="id" value="${req.query.id}" />
       <input type="hidden" name="email" value="${req.query.email}" />
       <label>Enter OTP:</label><input name="otp" required />
       <button type="submit">Verify</button>
@@ -275,8 +264,7 @@ app.post("/verify-otp/lease", async (req, res) => {
   if (!otpData || otpData.otp !== otp || otpData.type !== "lease")
     return res.status(400).send("Invalid OTP");
 
-  const listing = otpData.formData;
-  await xata.db.lease_listings.create(listing);
+  await xata.db.lease_listings.update(otpData.recordId, { is_published: true });
 
   delete otpStore[email];
 
