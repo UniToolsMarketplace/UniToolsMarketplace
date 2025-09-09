@@ -114,18 +114,10 @@ app.post("/preowned/sell", upload.array("images"), async (req, res) => {
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-  // Upload images to Xata first
+  // Upload images to Xata
   const uploadedFiles = await Promise.all(
     req.files.map((file) =>
-      xata.files.upload({
-        table: "sell_listings",
-        column: "images",
-        file: {
-          name: file.originalname,
-          mediaType: file.mimetype,
-          contents: file.buffer,
-        },
-      })
+      xata.files.upload(file.originalname, file.buffer, { mediaType: file.mimetype })
     )
   );
 
@@ -235,18 +227,10 @@ app.post("/preowned/lease", upload.array("images"), async (req, res) => {
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-  // Upload images to Xata first
+  // Upload images to Xata
   const uploadedFiles = await Promise.all(
     req.files.map((file) =>
-      xata.files.upload({
-        table: "lease_listings",
-        column: "images",
-        file: {
-          name: file.originalname,
-          mediaType: file.mimetype,
-          contents: file.buffer,
-        },
-      })
+      xata.files.upload(file.originalname, file.buffer, { mediaType: file.mimetype })
     )
   );
 
