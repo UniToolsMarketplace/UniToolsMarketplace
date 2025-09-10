@@ -114,12 +114,15 @@ app.post("/preowned/sell", upload.array("images"), async (req, res) => {
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-  // Convert uploaded files into Xata attachment objects
-  const uploadedFiles = req.files.map((file) => ({
-    name: file.originalname,
-    mediaType: file.mimetype,
-    data: file.buffer,
-  }));
+  // ✅ Upload images to Xata
+  const uploadedFiles = await Promise.all(
+    req.files.map(async (file) => {
+      const uploaded = await xata.files.upload(file.originalname, file.buffer, {
+        contentType: file.mimetype,
+      });
+      return uploaded;
+    })
+  );
 
   // Save record to DB with is_published = false
   const record = await xata.db.sell_listings.create({
@@ -227,12 +230,15 @@ app.post("/preowned/lease", upload.array("images"), async (req, res) => {
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-  // Convert uploaded files into Xata attachment objects
-  const uploadedFiles = req.files.map((file) => ({
-    name: file.originalname,
-    mediaType: file.mimetype,
-    data: file.buffer,
-  }));
+  // ✅ Upload images to Xata
+  const uploadedFiles = await Promise.all(
+    req.files.map(async (file) => {
+      const uploaded = await xata.files.upload(file.originalname, file.buffer, {
+        contentType: file.mimetype,
+      });
+      return uploaded;
+    })
+  );
 
   const record = await xata.db.lease_listings.create({
     seller_name,
