@@ -47,9 +47,7 @@ async function formatImages(images) {
     return Promise.all(
       images.map(async (file) => {
         try {
-          const signed = await xata.files.getPresignedUrl(file.id, {
-            expiry: 365 * 24 * 60 * 60, // 365 days
-          });
+          const signed = await file.getPresignedUrl(365 * 24 * 60 * 60); // 365 days
           return signed.url;
         } catch (err) {
           console.error("Error signing URL:", err);
@@ -58,11 +56,9 @@ async function formatImages(images) {
       })
     ).then((urls) => urls.filter(Boolean));
   }
-  if (images.id) {
+  if (images.url) {
     try {
-      const signed = await xata.files.getPresignedUrl(images.id, {
-        expiry: 365 * 24 * 60 * 60,
-      });
+      const signed = await images.getPresignedUrl(365 * 24 * 60 * 60);
       return [signed.url];
     } catch (err) {
       console.error("Error signing URL:", err);
@@ -73,33 +69,15 @@ async function formatImages(images) {
 }
 
 // ---------------- ROUTES ----------------
-app.get("/", (req, res) =>
-  res.sendFile(path.join(__dirname, "public/index.html"))
-);
-app.get("/preowned/sell", (req, res) =>
-  res.sendFile(path.join(__dirname, "public/sell.html"))
-);
-app.get("/preowned/buy", (req, res) =>
-  res.sendFile(path.join(__dirname, "public/buy.html"))
-);
-app.get("/preowned/lease", (req, res) =>
-  res.sendFile(path.join(__dirname, "public/lease.html"))
-);
-app.get("/preowned/rent", (req, res) =>
-  res.sendFile(path.join(__dirname, "public/rent.html"))
-);
-app.get("/listing/:id", (req, res) =>
-  res.sendFile(path.join(__dirname, "public/listing.html"))
-);
-app.get("/faculties", (req, res) =>
-  res.sendFile(path.join(__dirname, "public/faculties.html"))
-);
-app.get("/dentistry", (req, res) =>
-  res.sendFile(path.join(__dirname, "public/dentistry.html"))
-);
-app.get("/preowned", (req, res) =>
-  res.sendFile(path.join(__dirname, "public/preowned.html"))
-);
+app.get("/", (req, res) => res.sendFile(path.join(__dirname, "public/index.html")));
+app.get("/preowned/sell", (req, res) => res.sendFile(path.join(__dirname, "public/sell.html")));
+app.get("/preowned/buy", (req, res) => res.sendFile(path.join(__dirname, "public/buy.html")));
+app.get("/preowned/lease", (req, res) => res.sendFile(path.join(__dirname, "public/lease.html")));
+app.get("/preowned/rent", (req, res) => res.sendFile(path.join(__dirname, "public/rent.html")));
+app.get("/listing/:id", (req, res) => res.sendFile(path.join(__dirname, "public/listing.html")));
+app.get("/faculties", (req, res) => res.sendFile(path.join(__dirname, "public/faculties.html")));
+app.get("/dentistry", (req, res) => res.sendFile(path.join(__dirname, "public/dentistry.html")));
+app.get("/preowned", (req, res) => res.sendFile(path.join(__dirname, "public/preowned.html")));
 
 // ---------------- SELL LISTINGS WITH PAGINATION, SORT, SEARCH ----------------
 app.get("/api/sell/listings", async (req, res) => {
@@ -147,24 +125,13 @@ app.get("/api/sell/listings", async (req, res) => {
 
 // ---------------- SELL FORM + OTP ----------------
 app.post("/preowned/sell", upload.array("images"), async (req, res) => {
-  const {
-    seller_name = "",
-    email,
-    contact_number = "",
-    whatsapp_number = "",
-    item_name,
-    item_description = "",
-    price = "",
-  } = req.body;
+  const { seller_name = "", email, contact_number = "", whatsapp_number = "", item_name, item_description = "", price = "" } = req.body;
 
-  if (!email || !email.endsWith("@bue.edu.eg"))
-    return res.status(400).send("Email must be @bue.edu.eg domain");
-  if (!item_name || !price)
-    return res.status(400).send("Missing required fields");
+  if (!email || !email.endsWith("@bue.edu.eg")) return res.status(400).send("Email must be @bue.edu.eg domain");
+  if (!item_name || !price) return res.status(400).send("Missing required fields");
 
   const totalSize = req.files.reduce((sum, f) => sum + f.size, 0);
-  if (totalSize > 200 * 1024)
-    return res.status(400).send("Total image size cannot exceed 200KB.");
+  if (totalSize > 200 * 1024) return res.status(400).send("Total image size cannot exceed 200KB.");
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
@@ -189,9 +156,7 @@ app.post("/preowned/sell", upload.array("images"), async (req, res) => {
   otpStore[email] = { otp, type: "sell", recordId: record.id };
 
   const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
-  const verifyUrl = `${baseUrl}/verify-otp/sell?email=${encodeURIComponent(
-    email
-  )}`;
+  const verifyUrl = `${baseUrl}/verify-otp/sell?email=${encodeURIComponent(email)}`;
 
   transporter.sendMail({
     from: process.env.EMAIL_USER,
@@ -200,9 +165,38 @@ app.post("/preowned/sell", upload.array("images"), async (req, res) => {
     html: `<p>Your OTP: <b>${otp}</b></p><p>Verify: <a href="${verifyUrl}">${verifyUrl}</a></p>`,
   });
 
-  res.send(
-    `<h1>OTP sent to your email!</h1><a href="${verifyUrl}">Verify here</a>`
-  );
+  res.send(`<h1>OTP sent to your email!</h1><a href="${verifyUrl}">Verify here</a>`);
+});
+
+// ---------------- VERIFY OTP FOR SELL ----------------
+app.get("/verify-otp/sell", (req, res) => {
+  const { email } = req.query;
+  if (!email || !otpStore[email]) {
+    return res.status(400).send("Invalid or expired OTP session.");
+  }
+
+  res.send(`
+    <h1>Verify OTP for Sell Listing</h1>
+    <form method="POST" action="/verify-otp/sell">
+      <input type="hidden" name="email" value="${email}" />
+      <label>Enter OTP: <input type="text" name="otp" /></label>
+      <button type="submit">Verify</button>
+    </form>
+  `);
+});
+
+app.post("/verify-otp/sell", async (req, res) => {
+  const { email, otp } = req.body;
+  const session = otpStore[email];
+
+  if (!session || session.otp !== otp) {
+    return res.status(400).send("Invalid OTP");
+  }
+
+  await xata.db.sell_listings.update(session.recordId, { is_published: true });
+  delete otpStore[email];
+
+  res.send("<h1>Listing verified and published!</h1><a href='/preowned/buy'>Go to Buy Page</a>");
 });
 
 // ---------------- LEASE LISTINGS ----------------
@@ -252,8 +246,7 @@ app.get("/api/lease/listings", async (req, res) => {
 app.get("/api/sell/listings/:id", async (req, res) => {
   const { id } = req.params;
   const record = await xata.db.sell_listings.read(id);
-  if (!record || !record.is_published)
-    return res.status(404).send("Listing not found");
+  if (!record || !record.is_published) return res.status(404).send("Listing not found");
   const listing = {
     ...record,
     images: await formatImages(record.images),
@@ -264,8 +257,7 @@ app.get("/api/sell/listings/:id", async (req, res) => {
 app.get("/api/lease/listings/:id", async (req, res) => {
   const { id } = req.params;
   const record = await xata.db.lease_listings.read(id);
-  if (!record || !record.is_published)
-    return res.status(404).send("Listing not found");
+  if (!record || !record.is_published) return res.status(404).send("Listing not found");
   const listing = {
     ...record,
     images: await formatImages(record.images),
