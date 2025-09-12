@@ -114,36 +114,28 @@ app.post("/preowned/sell", upload.array("images"), async (req, res) => {
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-  // Upload each file to Cloudinary and collect URLs
-  const uploadedUrls = [];
-  for (const file of req.files) {
-    try {
-      const uploadRes = await cloudinary.uploader.upload_stream(
-        { folder: "unitools" },
-        (error, result) => {
-          if (error) {
-            console.error("Cloudinary upload error:", error);
-          }
-        }
-      );
-    } catch (err) {
-      console.error("Error uploading to Cloudinary:", err);
-    }
-  }
-
-  // Actually upload using buffer (await pattern)
+  // Cloudinary upload helper
   const cloudinaryUpload = (file) =>
     new Promise((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream({ folder: "unitools" }, (error, result) => {
-        if (error) reject(error);
-        else resolve(result.secure_url);
-      });
+      const stream = cloudinary.uploader.upload_stream(
+        { folder: "unitools" },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result.secure_url);
+        }
+      );
       stream.end(file.buffer);
     });
 
+  // Upload all files and collect URLs
+  const uploadedUrls = [];
   for (const file of req.files) {
-    const url = await cloudinaryUpload(file);
-    uploadedUrls.push(url);
+    try {
+      const url = await cloudinaryUpload(file);
+      uploadedUrls.push(url);
+    } catch (err) {
+      console.error("Cloudinary upload error:", err);
+    }
   }
 
   const record = await xata.db.sell_listings.create({
