@@ -15,7 +15,7 @@ const xata = getXataClient();
 
 // ---------------- CLOUDINARY SETUP ----------------
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_URL?.split("@")[1], // e.g. dbogauclq
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME, // ✅ use explicit env var
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
@@ -127,7 +127,7 @@ app.post("/preowned/sell", upload.array("images"), async (req, res) => {
   const uploadedUrls = [];
   for (const file of req.files) {
     try {
-      const result = await new Promise((resolve, reject) => {
+      const uploadResult = await new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
           { folder: "sell_listings" },
           (err, result) => {
@@ -137,7 +137,7 @@ app.post("/preowned/sell", upload.array("images"), async (req, res) => {
         );
         stream.end(file.buffer);
       });
-      uploadedUrls.push(result.secure_url);
+      uploadedUrls.push(uploadResult.secure_url); // ✅ fixed
     } catch (err) {
       console.error("Cloudinary upload error:", err);
     }
@@ -152,7 +152,7 @@ app.post("/preowned/sell", upload.array("images"), async (req, res) => {
     item_description,
     price: parseFloat(price),
     is_published: false,
-    images: uploadedUrls, // store URLs in Xata
+    images: uploadedUrls, // ✅ store URLs in Xata
   });
 
   otpStore[email] = { otp, type: "sell", recordId: record.id };
