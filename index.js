@@ -88,7 +88,6 @@ app.get("/api/sell/listings", async (req, res) => {
       pagination: { size: limit, offset: (page - 1) * limit },
     });
 
-  // images are now URLs, no need for presigned URLs
   const listings = result.records.map((l) => ({
     ...l,
     images: l.images || [],
@@ -138,10 +137,10 @@ app.post("/preowned/sell", upload.array("images"), async (req, res) => {
     }
   }
 
-  // ✅ Always ensure it's an array for Xata
-  const imagesArray = Array.isArray(uploadedUrls) ? uploadedUrls : [uploadedUrls].filter(Boolean);
+  // ✅ Always force a clean array of strings
+  const imagesArray = (uploadedUrls || []).filter(Boolean).map(String);
 
-  console.log("DEBUG: Images to save in DB:", imagesArray);
+  console.log("DEBUG: Final images array being saved:", imagesArray);
 
   const record = await xata.db.sell_listings.create({
     seller_name,
