@@ -137,8 +137,8 @@ app.post("/preowned/sell", upload.array("images"), async (req, res) => {
     }
   }
 
-  // ✅ Always force a clean array of strings
-  const imagesArray = (uploadedUrls || []).filter(Boolean).map(String);
+  // ✅ Always sanitize into a proper string array for Xata
+  const imagesArray = Array.isArray(uploadedUrls) ? uploadedUrls.filter(Boolean).map(String) : [];
 
   console.log("DEBUG: Final images array being saved:", imagesArray);
 
@@ -151,7 +151,7 @@ app.post("/preowned/sell", upload.array("images"), async (req, res) => {
     item_description,
     price: parseFloat(price),
     is_published: false,
-    images: imagesArray,
+    images: [...imagesArray], // <-- spread into array
   });
 
   otpStore[email] = { otp, type: "sell", recordId: record.id };
