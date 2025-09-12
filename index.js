@@ -138,7 +138,11 @@ app.post("/preowned/sell", upload.array("images"), async (req, res) => {
     }
   }
 
-  // ✅ Always save as array (fix for Xata type mismatch)
+  // ✅ Always ensure it's an array for Xata
+  const imagesArray = Array.isArray(uploadedUrls) ? uploadedUrls : [uploadedUrls].filter(Boolean);
+
+  console.log("DEBUG: Images to save in DB:", imagesArray);
+
   const record = await xata.db.sell_listings.create({
     seller_name,
     email,
@@ -148,7 +152,7 @@ app.post("/preowned/sell", upload.array("images"), async (req, res) => {
     item_description,
     price: parseFloat(price),
     is_published: false,
-    images: Array.isArray(uploadedUrls) ? uploadedUrls : [uploadedUrls].filter(Boolean),
+    images: imagesArray,
   });
 
   otpStore[email] = { otp, type: "sell", recordId: record.id };
