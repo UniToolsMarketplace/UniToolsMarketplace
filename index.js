@@ -141,9 +141,7 @@ app.post("/preowned/sell", upload.array("images"), async (req, res) => {
       }
     }
 
-    const firstImage = uploadedUrls.length > 0 ? uploadedUrls[0] : null;
-
-    console.log("DEBUG: Final image being saved:", firstImage);
+    console.log("DEBUG: Final images being saved:", uploadedUrls);
 
     const { data, error } = await supabase.from("sell_listings").insert([
       {
@@ -155,7 +153,7 @@ app.post("/preowned/sell", upload.array("images"), async (req, res) => {
         item_description,
         price: parseFloat(price),
         is_published: false,
-        images: firstImage,
+        images: uploadedUrls, // <-- save all URLs as array
       },
     ]).select();
 
