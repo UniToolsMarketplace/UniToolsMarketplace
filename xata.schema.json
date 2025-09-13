@@ -12,7 +12,7 @@
         { "name": "item_description", "type": "text" },
         { "name": "price", "type": "float" },
         { "name": "price_period", "type": "text" },
-        { "name": "images", "type": "text[]"} ,
+        { "name": "images", "type": "text"} ,
         { "name": "is_published", "type": "bool", "default": false }
       ]
     },
@@ -28,7 +28,7 @@
         { "name": "item_description", "type": "text" },
         { "name": "price", "type": "float" },
         { "name": "price_period", "type": "text" },
-        { "name": "images", "type": "text[]" },
+        { "name": "images", "type": "text" },
         { "name": "is_published", "type": "bool", "default": false }
       ]
     }
