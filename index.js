@@ -90,7 +90,7 @@ app.get("/api/sell/listings", async (req, res) => {
 
   const listings = result.records.map((l) => ({
     ...l,
-    images: l.images || [],
+    images: l.images || null,
   }));
 
   res.json({
@@ -137,10 +137,10 @@ app.post("/preowned/sell", upload.array("images"), async (req, res) => {
     }
   }
 
-  // ✅ Always sanitize into a proper string array for Xata
-  const imagesArray = Array.isArray(uploadedUrls) ? uploadedUrls.filter(Boolean).map(String) : [];
+  // ✅ Only save the first image (single text column in Xata)
+  const firstImage = uploadedUrls.length > 0 ? uploadedUrls[0] : null;
 
-  console.log("DEBUG: Final images array being saved:", imagesArray);
+  console.log("DEBUG: Final image being saved:", firstImage);
 
   const record = await xata.db.sell_listings.create({
     seller_name,
@@ -151,7 +151,7 @@ app.post("/preowned/sell", upload.array("images"), async (req, res) => {
     item_description,
     price: parseFloat(price),
     is_published: false,
-    images: [...imagesArray], // <-- spread into array
+    images: firstImage, // <-- single text column
   });
 
   otpStore[email] = { otp, type: "sell", recordId: record.id };
@@ -231,7 +231,7 @@ app.get("/api/lease/listings", async (req, res) => {
 
   const listings = result.records.map((l) => ({
     ...l,
-    images: l.images || [],
+    images: l.images || null,
   }));
 
   res.json({
@@ -248,7 +248,7 @@ app.get("/api/sell/listings/:id", async (req, res) => {
   if (!record || !record.is_published) return res.status(404).send("Listing not found");
   const listing = {
     ...record,
-    images: record.images || [],
+    images: record.images || null,
   };
   res.json(listing);
 });
@@ -259,7 +259,7 @@ app.get("/api/lease/listings/:id", async (req, res) => {
   if (!record || !record.is_published) return res.status(404).send("Listing not found");
   const listing = {
     ...record,
-    images: record.images || [],
+    images: record.images || null,
   };
   res.json(listing);
 });
