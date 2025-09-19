@@ -212,7 +212,7 @@ app.post("/verify-otp/sell", async (req, res) => {
 
     delete otpStore[email];
 
-    res.send("<h1>Listing verified and published!</h1><a href='/preowned/buy'>Go to Buy Page</a>");
+    res.send("<h1>Listing verified and published!</h1><a href='/preowned/buy'>View your Listing on the Buy Page</a>");
   } catch (err) {
     console.error(err);
     res.status(500).send("Server error");
@@ -329,7 +329,7 @@ app.post("/verify-otp/lease", async (req, res) => {
 
     delete otpStore[email];
 
-    res.send("<h1>Lease listing verified and published!</h1><a href='/preowned/lease'>Go to Lease Page</a>");
+    res.send("<h1>Lease listing verified and published!</h1><a href='/preowned/rent'>View Your Listing on the Rent Page</a>");
   } catch (err) {
     console.error(err);
     res.status(500).send("Server error");
